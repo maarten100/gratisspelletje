@@ -105,6 +105,10 @@ function seeded(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+/* Getallen met heel veel cijfers achter de komma (bv. in de klok- en cirkelplaatjes) kunnen op een
+   Linux-computer (GitHub) in het allerlaatste cijfer anders uitkomen dan op een Mac.
+   Voor de vingerafdruk ronden we die af op 6 cijfers achter de komma. */
+const gelijkmaken = tekst => tekst.replace(/\d+\.\d{7,}/g, g => String(Math.round(+g * 1e6) / 1e6));
 const hashString = s => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) | 0, 7);
 
 /* Draai alle controles. mathObj = het Math-object dat de oefeningen gebruiken (om toeval vast te zetten). */
@@ -121,7 +125,7 @@ export function controleerAlles({ EX, CATS, KOPPELINGEN, mathObj }) {
     for (let i = 0; i < AANTAL; i++) {
       let q;
       try { q = EX[id].gen(); } catch (e) { per.set('crasht: ' + e.message, null); break; }
-      h.update(JSON.stringify(q) || '');
+      h.update(gelijkmaken(JSON.stringify(q) || ''));
       for (const pr of controleerVraag(q)) if (!per.has(pr)) per.set(pr, q);
     }
     for (const [probleem, q] of per) fouten.push({ id, probleem, voorbeeld: q && (q.q || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 80) });
