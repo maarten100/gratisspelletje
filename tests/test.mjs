@@ -10,7 +10,8 @@
       en bij keuzevragen staat het goede antwoord ertussen.
    2. Alle oefening-ID's in KOPPELINGEN bestaan echt.
    3. Met vast "toeval" maken alle oefeningen precies dezelfde sommen als de opgeslagen vingerafdruk.
-      Zo zien we meteen als het opsplitsen of opruimen per ongeluk het gedrag verandert. */
+      Zo zien we meteen als het opsplitsen of opruimen per ongeluk het gedrag verandert.
+   4. De opslag zet oude voortgang goed over en wist nooit de oude gegevens. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -72,6 +73,14 @@ if (bewaar) {
     if (anders.length) console.log(`   ✗ maken andere sommen dan voorheen: ${anders.join(', ')}`);
     console.log('   Is dat de bedoeling (bijvoorbeeld een nieuwe oefening)? Draai dan: npm test -- --bewaar');
   } else console.log('   ✓ alle oefeningen maken precies dezelfde sommen als voorheen');
+}
+
+if (!oudPad) {
+  const { testOpslag } = await import('./opslag.test.mjs');
+  const f = testOpslag();
+  console.log('\n4. Opslag en overzetten van oude voortgang');
+  if (f.length) { mislukt = true; for (const x of f) console.log('   ✗ ' + x); }
+  else console.log('   ✓ oude voortgang komt goed over en de reservekopie blijft staan');
 }
 
 console.log(mislukt ? '\n✗ TESTS MISLUKT\n' : '\n✓ ALLE TESTS GESLAAGD\n');
