@@ -1,6 +1,6 @@
 /* App: routes en schermen. Dit is het startpunt dat index.html laadt. */
 import './oefeningen.js';   // eerst alle oefeningen registreren
-import { NAAM, LOGO } from './config.js';
+import { NAAM, LOGO, IS_TEST } from './config.js';
 import { CAT, CATS, DOMAINS, EX, fracHTML, GROEPEN, nl, pick } from './kern.js';
 import { KOPPELINGEN } from './koppelingen.js';
 import { GAMES } from './spellen.js';
@@ -306,7 +306,7 @@ function viewProfile(first) {
   $('#back').hidden = first;
   const methods = KOPPELINGEN.filter(k => k.kind === 'methode');
   app.innerHTML = `<div class="card profile">
-    ${first ? '<div class="emoji huge">🚀</div><h1>Welkom bij ${NAAM}</h1><p>Oefen alles van rekenen in groep 1 tot en met 8: uitleg, oefenen, toetsen en spelletjes.</p>' : '<h1>Mijn profiel</h1>'}
+    ${first ? `<div class="emoji huge">${LOGO}</div><h1>Welkom bij ${esc(NAAM)}</h1><p>Oefen alles van rekenen in groep 1 tot en met 8: uitleg, oefenen, toetsen en spelletjes.</p>` : '<h1>Mijn profiel</h1>'}
     <form id="pf">
       <label>Hoe heet je?<input name="name" maxlength="20" required autocomplete="off" value="${esc(p.name)}" placeholder="Je voornaam"></label>
       <fieldset><legend>In welke groep zit je?</legend><div class="grp">${GROEPEN.map(g => `<label class="g${g}"><input type="radio" name="groep" value="${g}" ${g === p.groep ? 'checked' : ''}><span>${g}</span></label>`).join('')}</div></fieldset>
@@ -374,6 +374,7 @@ function renderInstall() {
 document.title = NAAM;
 $('.logo').innerHTML = `<span>${LOGO}</span> ${esc(NAAM)}`;
 $('.logo').setAttribute('aria-label', `${NAAM}, naar start`);
+if (IS_TEST) $('.logo').insertAdjacentHTML('beforeend', '<small class="test-label" title="Dit is de testversie">TEST</small>');
 
 /* service worker aanzetten: daardoor werkt de app ook offline (zie sw.js) */
 if ('serviceWorker' in navigator) {

@@ -7,3 +7,9 @@
 
 export const NAAM = 'Reken je Rot!';
 export const LOGO = '🚀';   // het plaatje vóór de naam in de bovenbalk
+
+/* Het echte adres. Op elk ander adres (de testsite, je eigen computer) toont de app een
+   label "TEST", zodat je altijd ziet in welke omgeving je zit. */
+export const PRODUCTIE_DOMEIN = 'rekenjerot.nl';
+export const IS_TEST = typeof location !== 'undefined'
+  && location.hostname !== PRODUCTIE_DOMEIN && location.hostname !== 'www.' + PRODUCTIE_DOMEIN;
