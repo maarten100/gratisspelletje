@@ -1,0 +1,29 @@
+/* Bewerkingen (plus/min, keer, delen) */
+
+/* plussom/minsom met plaatjes */
+.bw-pics { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; max-width: 330px; margin: 0 auto; }
+.bw-pics .plaatjes { margin: 0; }
+.bw-pics .bw-op { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+.bw-rij { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: 1.9rem; line-height: 1; }
+.bw-rij .bw-weg { position: relative; opacity: .35; }
+.bw-rij .bw-weg::after { content: "✕"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--bad); font-size: 1.6rem; font-weight: 800; opacity: 1; }
+
+/* groepjes (vermenigvuldigen) */
+.bw-groepen { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 330px; margin: 0 auto; }
+.bw-groep { border: 2px dashed var(--line); border-radius: 14px; padding: 6px 8px; font-size: 1.5rem; line-height: 1.2; max-width: 120px; word-break: break-all; text-align: center; background: var(--card); }
+
+/* cijferen onder elkaar */
+.bw-col { margin: 6px auto; border-collapse: collapse; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+.bw-col td { width: 1.15em; height: 1.4em; padding: 0 2px; text-align: center; }
+.bw-col td.bw-o { color: var(--primary); }
+.bw-col tr.bw-ans td { border-top: 3px solid var(--ink); color: var(--muted); }
+
+/* splitsen (bij keer en delen) */
+.bw-splits { display: grid; grid-template-columns: auto auto; justify-content: center; column-gap: 28px; text-align: center; font-weight: 800; font-size: 1.4rem; color: var(--ink); }
+.bw-splits b { grid-column: 1 / -1; }
+.bw-splits span { display: block; margin-top: 6px; padding: 2px 10px; border-radius: 10px; background: var(--card); border: 2px solid var(--line); font-size: 1.15rem; }
+
+/* staartdeling */
+.bw-staart { display: flex; justify-content: center; align-items: baseline; gap: 6px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 1.6rem; font-weight: 700; color: var(--ink); margin: 6px auto; }
+.bw-staart .bw-sl { color: var(--primary); font-size: 1.9rem; }
+.bw-staart .bw-q { color: var(--muted); }

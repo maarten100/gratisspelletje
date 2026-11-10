@@ -11,6 +11,8 @@ Lees het helemaal voordat je iets aanpast, en houd het bij als er beslissingen b
 - Alles wat ik **zelf** moet doen (Supabase-dashboard, DNS bij TransIP, instellingen op GitHub), leg je stap voor stap uit, met waar ik moet klikken.
 - Kies steeds de **eenvoudigste oplossing** die werkt en die ik later nog kan onderhouden. Geen frameworks of tools als het niet nodig is.
 - Maak kleine commits met duidelijke berichten, zodat we altijd terug kunnen.
+- **Pushen en pull requests doe ik zelf.** Claude pusht niet en maakt geen pull request, maar loodst me er aan het eind van een fase stap voor stap doorheen.
+- Werk op een aparte branch per fase, nooit direct op `main`.
 
 ## Wat het is
 
@@ -22,21 +24,71 @@ Het begon om mijn zoon te helpen met rekenen; nu wil ik dat veel meer kinderen h
 - **Test:** gratisspelletje.com (GitHub Pages, DNS bij TransIP). Hier draait nu de huidige versie.
 - **GitHub-account:** maarten100. Huidige repo: `gratisspelletje`.
 
-## Huidige situatie (vóór fase 1)
+## Inhoud van de app
 
-- De hele app staat in één groot `index.html` (CSS en JavaScript inline), plus `sw.js` en `CNAME`.
-- Inhoud: 5 domeinen (Automatiseren, Getallen, Meten, Verhoudingen, Verbanden), ± 20 categorieën, honderden oefensoorten met willekeurig gegenereerde sommen, hints en uitleg.
+- 5 domeinen (Automatiseren, Getallen, Meten, Verhoudingen, Verbanden), 21 categorieën, 447 oefensoorten met willekeurig gegenereerde sommen, hints en uitleg.
 - Modi: oefenen (hint na fout), op tijd (timer), toets (cijfer + nakijklijst).
 - Koppelingen per blok voor de methodes Wereld in getallen, Pluspunt en Getal & Ruimte Junior, en toetstraining voor Cito LIB en IEP (`KOPPELINGEN`).
 - Motivatie: sterren, dagen op rij, badges, "beheerst" (laatste 8+ pogingen ≥ 80% in één keer goed).
 - 5 korte rekenspelletjes (Tafelrace, Ballonnen, Memory, Groter of kleiner, Getallenlijn).
-- Opslag: één object `S` in localStorage onder de sleutel `rekenraket-v2`. Eén profiel per apparaat.
-- **Bekende problemen:**
-  - De service worker staat uit (`if (false)` rond de registratie) en er is geen `manifest.json`. Offline werkt dus niet en installeren op Android/Chrome ook niet.
-  - Commentaar verwijst naar losse bestanden (`SPEC.md`, `js/ex-getallen.js`, `css/ex-meten.css`) die niet meer bestaan.
-  - De ouderpagina zegt "alles blijft op dit apparaat, geen account nodig". Dat moet veranderen zodra er accounts zijn.
+- Eén profiel per apparaat (nog geen accounts).
 
-**Belangrijk:** bestaande gebruikers hebben voortgang in localStorage (`rekenraket-v2`). Die mag nooit verloren gaan.
+**Belangrijk:** bestaande gebruikers hebben voortgang in localStorage (`rekenraket-v2`, sinds fase 1 overgenomen in `rekenjerot-v3`). Die mag nooit verloren gaan.
+
+## Opbouw van de code (na fase 1)
+
+Gewone bestanden zonder bouwstap: wat in de map staat, is wat er online komt.
+
+```
+index.html            kop, bovenbalk en de links naar CSS en js/app.js
+manifest.json         PWA: naam, kleuren, iconen
+sw.js                 service worker (offline). VERSIE + lijst BESTANDEN
+css/                  basis.css + één bestand per domein
+js/config.js          naam, logo, productiedomein (IS_TEST)
+js/kern.js            hulpfuncties, vraag-bouwers (vraagformaat staat hier), register EX/CATS/DOMAINS
+js/domeinen/*.js      getallen, bewerkingen, meten, verhoudingen, verbanden (registreren zich met defCat)
+js/oefeningen.js      laadt alle domeinen; volgorde = volgorde in de app
+js/koppelingen.js     KOPPELINGEN: methodeblokken en toetstraining
+js/spellen.js         de rekenspelletjes (GAMES)
+js/opslag.js          opslaglaag: S, save(), migratie van oude sleutels
+js/voortgang.js       dagen op rij, sterren, record(), mastery()
+js/scherm.js          $, $$, esc, fr, geluid, confetti, bovenbalk
+js/speler.js          de sommen-speler (WIDGETS per vraagtype, runSession)
+js/app.js             router en schermen; startpunt
+iconen/               icoon.svg + PNG's (npm run iconen)
+tests/                npm test
+tools/server.mjs      npm start → http://localhost:8000
+.github/workflows/    website.yml: tests + automatisch online zetten
+```
+
+- Modules importeren expliciet wat ze gebruiken. Domeinbestanden mogen geen browser-dingen (document, localStorage) gebruiken bij het laden, anders werken de tests niet.
+- **Opslag:** alleen `js/opslag.js` leest/schrijft. Sleutel `rekenjerot-v3` (met `versie`). De oude sleutel `rekenraket-v2` wordt bij de eerste keer overgenomen en **nooit gewist** (reservekopie). Kapotte gegevens worden apart bewaard (`rekenjerot-v3-kapot-<tijd>`).
+- **Service worker:** netwerk eerst, cache als terugval. Nieuw bestand? Zet het in `BESTANDEN` in `sw.js` (de test controleert dit) en verhoog `VERSIE`.
+- **Naam wijzigen:** `js/config.js`, `index.html` (title, apple-mobile-web-app-title, bovenbalk) en `manifest.json`.
+
+### Tests (`npm test`)
+1. Elke oefening maakt 200 vragen: geen NaN, antwoord past bij het type, goede keuze staat ertussen.
+2. Alle ID's in `KOPPELINGEN` bestaan.
+3. Vingerafdruk (`tests/vingerafdruk.json`): met vast toeval moeten alle oefeningen dezelfde sommen maken, en de categorievolgorde moet gelijk blijven. Bewust een oefening toegevoegd of veranderd? Dan `npm test -- --bewaar`.
+4. Opslag: oude voortgang komt goed over, reservekopie blijft staan.
+5. PWA: alle bestanden staan in de offline-lijst, alle iconen bestaan.
+
+### Nog open
+- De ouderpagina zegt "alles blijft op dit apparaat, geen account nodig". Dat moet veranderen zodra er accounts zijn (fase 2).
+- **Voortgang op gratisspelletje.com gaat niet vanzelf mee naar rekenjerot.nl.** De browser bewaart gegevens per website. Bestaande gebruikers van gratisspelletje.com houden hun voortgang daar. Oplossing kiezen vóór de lancering op rekenjerot.nl (bv. een overzetknop, of via de accounts uit fase 2).
+
+## Omgevingen
+
+| | Test | Productie |
+|---|---|---|
+| Adres | gratisspelletje.com | rekenjerot.nl |
+| GitHub-repo | `maarten100/gratisspelletje` | `maarten100/rekenjerot` |
+| Wordt bijgewerkt bij | merge/push naar `main` van gratisspelletje | `git push productie main` |
+| Label in de app | TEST | geen |
+
+- Werkwijze: branch → pull request (tests draaien automatisch) → merge naar `main` → staat op de testsite → bevalt het, dan `git push productie main` → staat op rekenjerot.nl.
+- Beide repo's gebruiken dezelfde `.github/workflows/website.yml` (Pages-bron: "GitHub Actions"). Het domein staat in de repo-instellingen, niet in een bestand. Het `CNAME`-bestand wordt daardoor niet meer gebruikt.
+- Waarom twee repo's: GitHub Pages geeft één website per repo.
 
 ## Beslissingen
 
@@ -88,3 +140,13 @@ Meer korte rekenspelletjes en oefenvormen. Later eventueel de leerkrachtomgeving
 ## Logboek van beslissingen
 
 (Vul hier aan wat we onderweg besluiten, met datum.)
+
+- **2026-11-10 — Fase 1**
+  - Gewone ES-modules zonder bouwstap; opgesplitst langs de bestaande blokken. Tests bewijzen dat alle 447 oefeningen precies dezelfde sommen maken als vóór het opsplitsen.
+  - Opslag onder nieuwe sleutel `rekenjerot-v3`; `rekenraket-v2` blijft altijd staan als reservekopie.
+  - Service worker met netwerk-eerst (updates komen meteen door; offline uit de cache).
+  - PNG-iconen worden met `npm run iconen` gemaakt uit `iconen/icoon.svg`.
+  - Omgevingen: twee repo's (test en productie) met dezelfde GitHub Actions-workflow. Live zetten op productie is een bewuste stap (`git push productie main`).
+  - De badge "Rekenraket" (alles van je groep beheerst) houdt zijn naam.
+  - Op elk adres behalve rekenjerot.nl toont de app een label TEST.
+  - Pushen en pull requests doet Maarten zelf, met uitleg.

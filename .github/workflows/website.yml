@@ -1,0 +1,56 @@
+# Zet de website automatisch online via GitHub Pages.
+#
+# - Bij elke pull request: alleen de tests draaien (groen vinkje = in orde).
+# - Bij elke push naar main: eerst de tests, en alleen als die slagen de site bijwerken.
+#
+# Dit bestand staat in beide repo's (test: gratisspelletje, productie: rekenjerot).
+# Welk domein erbij hoort, staat niet hier maar in de repo-instellingen:
+# Settings → Pages → Custom domain.
+
+name: Website
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm test
+
+  online-zetten:
+    needs: testen
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Alleen de bestanden van de app klaarzetten (geen tests, hulpscripts of notities)
+        run: |
+          mkdir _site
+          cp -r index.html manifest.json sw.js css js iconen _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,16 @@
+/* Verhoudingen (prefix vh-) */
+.vh-tabwrap { max-width: 100%; overflow-x: auto; margin: 8px auto; text-align: center; }
+.vh-tab { border-collapse: collapse; margin: 0 auto; font-size: 1rem; background: var(--card); }
+.vh-tab th, .vh-tab td { border: 2px solid var(--line); padding: 4px 5px; text-align: center; min-width: 2.4em; color: var(--ink); }
+.vh-tab th { background: #FAF6EE; text-align: left; font-weight: 700; font-size: .85rem; line-height: 1.15; max-width: 6.5em; }
+.vh-tab td.vh-blank { padding: 3px; background: #FFFDF6; }
+.vh-tab td.vh-blank .blank { min-width: 44px; height: 40px; margin: 0; padding: 0 4px; font-size: 1.05rem; }
+.vh-vis { display: flex; justify-content: center; margin: 8px auto; }
+.vh-stripbox { width: 100%; }
+.vh-vis .strip { width: 100%; height: auto; display: block; }
+.vh-vis .strip rect { stroke: var(--ink); stroke-width: 2; }
+.vh-vis .strip .on { fill: var(--accent); }
+.vh-vis .strip .off { fill: #fff; }
+.frac.vh-fin { font-size: 1em; }
+.frac.vh-fin > span { padding: 2px .1em; }
+.frac.vh-fin .blank { min-width: 52px; height: 42px; margin: 2px 0; }
