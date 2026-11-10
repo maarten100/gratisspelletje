@@ -1,4 +1,4 @@
-/* Rekenraket – bewerkingen: plus/min, keer en delen (automatiseren + getallen).
+/* Bewerkingen: plus/min, keer en delen (automatiseren + getallen).
    Categorieën: plusmin, keer, delen, bplusmin, bkeer, bdelen.
    Alle globale namen beginnen met bw_. */
 import { defCat, dots, multi, nl, num, pick, plaatjes, R, round, shuffle, splitshuis } from '../kern.js';

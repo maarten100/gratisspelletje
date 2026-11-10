@@ -1,4 +1,4 @@
-/* Rekenraket – domein Verhoudingen: verhoudingstabellen, breuken, procenten, relatie, schaal.
+/* Domein Verhoudingen: verhoudingstabellen, breuken, procenten, relatie, schaal.
    Alle globale namen beginnen met vh_. */
 import { choice, colour, defCat, fracHTML, gcd, line, multi, nl, num, order, pick, pieSVG, R, round, shuffle, stripSVG, tableHTML } from '../kern.js';
 

@@ -1,4 +1,4 @@
-/* Rekenraket – kern: hulpfuncties, vraag-bouwers, plaatjes en het register van oefeningen.
+/* Kern: hulpfuncties, vraag-bouwers, plaatjes en het register van oefeningen.
    Het vraagformaat staat hieronder bij de vraag-bouwers. */
 
 /* ===================== hulpfuncties ===================== */

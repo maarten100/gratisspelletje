@@ -1,4 +1,4 @@
-/* Rekenraket – domein Verbanden: diagrammen en tabellen.
+/* Domein Verbanden: diagrammen en tabellen.
    Alle globale namen beginnen met vb_. */
 import { choice, defCat, euro, multi, NAMEN, nl, num, pick, R, round, shuffle, tableHTML } from '../kern.js';
 

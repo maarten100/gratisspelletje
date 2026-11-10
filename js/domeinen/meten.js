@@ -1,4 +1,4 @@
-/* Rekenraket – domein Meten: klokkijken, tijd, metriek stelsel, geld en meetkunde (blokkenbouwsels).
+/* Domein Meten: klokkijken, tijd, metriek stelsel, geld en meetkunde (blokkenbouwsels).
    Alle eigen functies beginnen met mt_, alle CSS-klassen met mt- (zie css/meten.css). */
 import { choice, clockSet, clockSVG, DAGEN, defCat, digitalClock, euro, klokWoord, MAANDEN, moneyHTML, multi, nl, num, order, pay, pick, R, round, shuffle } from '../kern.js';
 

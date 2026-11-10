@@ -1,4 +1,4 @@
-/* Rekenraket – bewerkingen (plus/min, keer, delen) */
+/* Bewerkingen (plus/min, keer, delen) */
 
 /* plussom/minsom met plaatjes */
 .bw-pics { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; max-width: 330px; margin: 0 auto; }

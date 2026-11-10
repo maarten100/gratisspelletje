@@ -1,4 +1,4 @@
-/* Rekenraket – Verbanden (prefix vb-) */
+/* Verbanden (prefix vb-) */
 .vb-wrap { max-width: 100%; margin: 8px auto; text-align: center; }
 .vb-chart { width: 100%; max-width: 440px; height: auto; display: block; margin: 0 auto; background: var(--card); border-radius: 12px; }
 .vb-chart text { font-family: inherit; fill: var(--ink); }

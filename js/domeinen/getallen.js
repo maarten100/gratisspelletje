@@ -1,4 +1,4 @@
-/* Rekenraket – domein Getallen: getalbegrip tot 100, boven de 100 en kommagetallen.
+/* Domein Getallen: getalbegrip tot 100, boven de 100 en kommagetallen.
    Categorieën: getal100, getalgroot, komma. Alle eigen globale namen beginnen met gt_. */
 import { choice, count, defCat, getalWoord, line, lineSVG, multi, nl, num, order, pick, plaatjes, R, round, shuffle, splitshuis } from '../kern.js';
 

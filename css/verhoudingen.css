@@ -1,4 +1,4 @@
-/* Rekenraket – Verhoudingen (prefix vh-) */
+/* Verhoudingen (prefix vh-) */
 .vh-tabwrap { max-width: 100%; overflow-x: auto; margin: 8px auto; text-align: center; }
 .vh-tab { border-collapse: collapse; margin: 0 auto; font-size: 1rem; background: var(--card); }
 .vh-tab th, .vh-tab td { border: 2px solid var(--line); padding: 4px 5px; text-align: center; min-width: 2.4em; color: var(--ink); }

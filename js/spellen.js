@@ -1,4 +1,4 @@
-/* Rekenraket – spelletjes. Elk spel: start(el, ctx) → geeft een opruimfunctie terug.
+/* Spelletjes. Elk spel: start(el, ctx) → geeft een opruimfunctie terug.
    ctx = { groep, beep(type), finish(gameKey, score, {lower, label}) → html, confetti() } */
 import { fracHTML, nearWrongs, nl, pick, R, shuffle } from './kern.js';
 

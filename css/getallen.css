@@ -1,4 +1,4 @@
-/* Rekenraket – domein Getallen (js/domeinen/getallen.js) */
+/* Domein Getallen (js/domeinen/getallen.js) */
 .gt-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 8px auto; max-width: 340px; }
 .gt-box {
   min-width: 46px; padding: 8px 6px; border: 3px solid var(--line); border-radius: 12px; background: var(--card);

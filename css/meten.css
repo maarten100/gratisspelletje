@@ -1,4 +1,4 @@
-/* Rekenraket – plaatjes voor het domein Meten (js/domeinen/meten.js). Alle klassen beginnen met mt-. */
+/* Plaatjes voor het domein Meten (js/domeinen/meten.js). Alle klassen beginnen met mt-. */
 
 /* twee klokken naast elkaar (begin / eind) */
 .mt-two { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-end; }

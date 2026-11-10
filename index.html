@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Rekenraket</title>
+  <title>Reken je Rot!</title>
   <meta name="description" content="Oefen rekenen voor groep 1 t/m 8: uitleg, oefenen, toetsen en rekenspelletjes. Werkt ook offline.">
   <meta name="theme-color" content="#6C4CF1">
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzZDNENGMSIvPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTcwIiBmaWxsPSIjRkZCODAwIi8+CiAgPHJlY3QgeD0iMjI2IiB5PSIxNDYiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyMjAiIHJ4PSIzMCIgZmlsbD0iI2ZmZiIvPgogIDxyZWN0IHg9IjE0NiIgeT0iMjI2IiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjYwIiByeD0iMzAiIGZpbGw9IiNmZmYiLz4KPC9zdmc+Cg==" type="image/svg+xml">
   <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAFiUlEQVR42u3dv6pkRRCA8fMG9w30CcRH8AHWaEMTzUwUExcEM5MNNbpgvJiIiaBgcANBRIxkTYwXU0E2MDE5UrtclHHu7sz5M91d9TvwJetx5szZj97q6qru6b03n85AFiYvAYQGCA0QGiA0CA0QGiA0QGiA0CA0QGiA0AChAUKD0AChAUIDhAYIDUIDhAYIDRAaIDQIDRAaIDRAaIDQIDRAaIDQAKEBQoPQAKEBQgOEBqG9CBAaIDRA6HF4+M4P82fvfjN/9fHD+dtPPnohcU/cG/+Pd0foLuQNKX/69K3590evzfN30yriM+Kz4jNJTuiL8Pn7XzyT7q+vr1YL/DLiO+K74ju9e0JvOhJfSuKXyW3kJvRiHn14vUkosTXxTPFs/o4IfbLIf3z5SnciHxLPSGxC30lkHHockU8ZsePZ/R0S+hkP7j+ZH1/fG07kQ+I3xG8hdPGsRcvJ3h6Tx+pZkanqqBxZgywiHxK/repoPVVMw40YKy+JrSum+aZqE79MIcYpIUi1CeNUKR1XReRDKqX3JjKTmtBkJjWhyUxqQq+aAHYj0o+vP6eT58k8UZyypuaaZzN+fXuen/4y/++KP4v/1jj7kTWlN2VcNGmaZ/7+1eMiHxM77m2Yp864+JJO6KYrgBFW/P3nfPIV9zYMReJdEbrz2oymYcYpI/OxkbrhM2er/ZgyhRpN4+aIi5deDWPqeGeZQo80QjcvAV0yOncySse7I7QU3b/cXM2rr5srqTxCP6d59dzPb6wXOj6jcXUeoa0GphE6yyri8EJ30dCaROh4l4RWq5FG6Ayj9CR2JnSmWHpYoaMWoZvio0RCByPXeQwrdFdNrsmEHnlJfFihu+oNTCZ0vFtCV6rZSC70yDUek3CD0JnCjkm4QehMYccku0HoTNmO4YSOIxsIfRniXRO6WvycWOgR4+jJ6uB/SkBDqiX89sF6oeMzln7/TqWnI64aDif0xbqzR7t26iYn9CgTwmhOzSDyMbE3bLwdbWI4lNCbdabE9gHndGePdsVv22iLhNE6WaaSGY6MI/NOfYqjZTqGEjqOFG7anT3atUFMHe+c0D0LXWF03nCUJnTvQle7CJ1Y6Jj9V7tWZjwITWhCE1rIIeQgtEmhSSGhpe0IbWHFwgqhLX1b+ia04iTFScpHlY8qH1Xgr8Bfgb8WLC1YhNYkq0mW0LYxsI2BjWYIbaMZW4ER2lZgNmu0WSOhbac7ktC207XheSqhbXjuSIpUQjuSwqFBaYR2aJBj3RzrRmgHb/YotIM3jdKORia0w+t7FNrh9Rk7WdaUnq69btrm1UfrTEktdPD4+l5bqdc0CWzU/7eUeHdZPEgj9IP7T9quHq7pJt+h0+ScVcF4d4RW47HNKN14dB61ZqOE0M2XxKM59Zxu8rh3w4bWSkvcZYSOfz6bZj1i+4BTRuq4Z6OtBpZmNTKFGmmFvq3zaF6Nd1c3+U7d2efGzSPXa5QTuotU3mEo0jC0yJqiKyV0V7UeHZFhNbCs0KSuJXMJoUldR+YyQleXuorMpYS+nSh2twXCztmMzBPA8kLfpvS66XTZOc+cNTVH6COLL13ukbfhCmDGRRNCn1D7kSkEid+SrTaD0AtG6+alpxuVgFYdlQl9x4RxxNg6nrnaxI/QZ6b3umi8PaGhtVI6jtAbiN3jiB3PRGRCr0rzRdag5eQxvjueoWIajtA7Z0UuJfetxNWzFoS+4MgdRzaEdFuEJvEZ8VnxmUZiQncjeWQcQso4UvhFxD1xL3kJDRAahAYIDRAaIDRAaBAaIDRAaIDQAKFBaIDQAKEBQgOEBqEBQgOEBggNQnsJIDRAaIDQAKFBaIDQAKEBQgOEBqEBQgOEBggNEBqEBggNEBogNEBoEBogNNCMfwA6w60gZIHHWgAAAABJRU5ErkJggg==">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Rekenraket">
+  <meta name="apple-mobile-web-app-title" content="Reken je Rot!">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="stylesheet" href="css/basis.css">
   <link rel="stylesheet" href="css/bewerkingen.css">
@@ -23,7 +23,7 @@
 <body>
   <header class="top">
     <button id="back" class="icon-btn" aria-label="Terug" hidden>←</button>
-    <a href="#/" class="logo" aria-label="Rekenraket, naar start"><span>🚀</span> Rekenraket</a>
+    <a href="#/" class="logo" aria-label="Reken je Rot!, naar start"><span>🚀</span> Reken je Rot!</a>
     <div class="top-right">
       <span class="stars-pill" title="Jouw sterren">⭐ <b id="stars">0</b></span>
       <button id="sound" class="icon-btn" aria-label="Geluid uit">🔊</button>
@@ -31,6 +31,6 @@
     </div>
   </header>
   <main id="app" tabindex="-1"></main>
-  <noscript><p style="padding:2rem">Zet JavaScript aan om Rekenraket te gebruiken.</p></noscript>
+  <noscript><p style="padding:2rem">Zet JavaScript aan om Reken je Rot! te gebruiken.</p></noscript>
 </body>
 </html>

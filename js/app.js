@@ -1,5 +1,6 @@
-/* Rekenraket – app: routes en schermen. Dit is het startpunt dat index.html laadt. */
+/* App: routes en schermen. Dit is het startpunt dat index.html laadt. */
 import './oefeningen.js';   // eerst alle oefeningen registreren
+import { NAAM, LOGO } from './config.js';
 import { CAT, CATS, DOMAINS, EX, fracHTML, GROEPEN, nl, pick } from './kern.js';
 import { KOPPELINGEN } from './koppelingen.js';
 import { GAMES } from './spellen.js';
@@ -305,7 +306,7 @@ function viewProfile(first) {
   $('#back').hidden = first;
   const methods = KOPPELINGEN.filter(k => k.kind === 'methode');
   app.innerHTML = `<div class="card profile">
-    ${first ? '<div class="emoji huge">🚀</div><h1>Welkom bij Rekenraket!</h1><p>Oefen alles van rekenen in groep 1 tot en met 8: uitleg, oefenen, toetsen en spelletjes.</p>' : '<h1>Mijn profiel</h1>'}
+    ${first ? '<div class="emoji huge">🚀</div><h1>Welkom bij ${NAAM}</h1><p>Oefen alles van rekenen in groep 1 tot en met 8: uitleg, oefenen, toetsen en spelletjes.</p>' : '<h1>Mijn profiel</h1>'}
     <form id="pf">
       <label>Hoe heet je?<input name="name" maxlength="20" required autocomplete="off" value="${esc(p.name)}" placeholder="Je voornaam"></label>
       <fieldset><legend>In welke groep zit je?</legend><div class="grp">${GROEPEN.map(g => `<label class="g${g}"><input type="radio" name="groep" value="${g}" ${g === p.groep ? 'checked' : ''}><span>${g}</span></label>`).join('')}</div></fieldset>
@@ -337,8 +338,8 @@ function viewProfile(first) {
 function viewOuders() {
   const n = Object.keys(EX).length;
   app.innerHTML = `<h1>Voor ouders & leerkrachten</h1>
-    <article class="card uitleg"><h2>Wat is Rekenraket?</h2>
-    <p>Rekenraket is een gratis oefenapp voor rekenen in groep 1 tot en met 8, met ${n} soorten oefeningen in ${CATS.length} onderwerpen, verdeeld over de domeinen ${DOMAINS.map(d => d.title.toLowerCase()).join(', ')}.</p>
+    <article class="card uitleg"><h2>Wat is ${NAAM}</h2>
+    <p>${NAAM} is een gratis oefenapp voor rekenen in groep 1 tot en met 8, met ${n} soorten oefeningen in ${CATS.length} onderwerpen, verdeeld over de domeinen ${DOMAINS.map(d => d.title.toLowerCase()).join(', ')}.</p>
     <ul><li><b>Oefenen</b>: kies een of meer soorten sommen. Na een fout volgt een hulpje.</li>
     <li><b>Op tijd</b>: automatiseren met een timer (plus/min, tafels, deeltafels).</li>
     <li><b>Toets</b>: 10 of 20 vragen met een cijfer en een nakijklijst.</li>
@@ -347,8 +348,8 @@ function viewOuders() {
     <p>Elke oefening is een link: deel bijvoorbeeld de link van een oefensessie met een leerling.</p>
     <h2>Beheerst</h2><p>Een soort som telt als <b>beheerst</b> als het kind er van de laatste 8 of meer pogingen minstens 80% in één keer goed had.</p>
     <h2>Privacy</h2><p>Alles wordt alleen op dit apparaat opgeslagen. Er gaat geen informatie naar internet, er zijn geen advertenties en er is geen account nodig.</p>
-    <h2>Installeren</h2><p>Rekenraket werkt ook offline. Installeer de app via het menu van je browser ("App installeren" of "Zet op beginscherm").</p>
-    <p class="small muted">Rekenraket is niet verbonden aan de genoemde uitgevers of toetsmakers. De koppeling met methodes is een hulpmiddel; controleer bij twijfel met de editie die op school wordt gebruikt.</p></article>`;
+    <h2>Installeren</h2><p>${NAAM} werkt ook offline. Installeer de app via het menu van je browser ("App installeren" of "Zet op beginscherm").</p>
+    <p class="small muted">${NAAM} is niet verbonden aan de genoemde uitgevers of toetsmakers. De koppeling met methodes is een hulpmiddel; controleer bij twijfel met de editie die op school wordt gebruikt.</p></article>`;
 }
 
 /* ---------- installeren (PWA) ---------- */
@@ -362,12 +363,17 @@ function renderInstall() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (standalone) { box.innerHTML = ''; return; }
   if (installEvt) {
-    box.innerHTML = '<div class="card install"><span class="emoji">📲</span><div><b>Zet Rekenraket op je tablet of telefoon</b><small>Dan werkt hij ook zonder internet.</small></div><button class="btn primary" id="inst">Installeren</button></div>';
+    box.innerHTML = `<div class="card install"><span class="emoji">📲</span><div><b>Zet ${NAAM} op je tablet of telefoon</b><small>Dan werkt het ook zonder internet.</small></div><button class="btn primary" id="inst">Installeren</button></div>`;
     $('#inst').addEventListener('click', async () => { installEvt.prompt(); await installEvt.userChoice; installEvt = null; renderInstall(); });
   } else if (ios) {
-    box.innerHTML = '<div class="card install"><span class="emoji">📲</span><div><b>Zet Rekenraket op je beginscherm</b><small>Tik op <b>Deel</b> ⬆️ en kies <b>Zet op beginscherm</b>.</small></div></div>';
+    box.innerHTML = `<div class="card install"><span class="emoji">📲</span><div><b>Zet ${NAAM} op je beginscherm</b><small>Tik op <b>Deel</b> ⬆️ en kies <b>Zet op beginscherm</b>.</small></div></div>`;
   } else box.innerHTML = '';
 }
+
+/* naam en logo uit config.js in de bovenbalk en de titel */
+document.title = NAAM;
+$('.logo').innerHTML = `<span>${LOGO}</span> ${esc(NAAM)}`;
+$('.logo').setAttribute('aria-label', `${NAAM}, naar start`);
 
 if (false) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
