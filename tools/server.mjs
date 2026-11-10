@@ -25,4 +25,11 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Niet gevonden: ' + p);
   }
+}).on('error', fout => {
+  if (fout.code === 'EADDRINUSE') {
+    console.error(`\nPoort ${POORT} is al in gebruik. Draait de app misschien al in een ander Terminal-venster?`);
+    console.error(`Stop die eerst met Ctrl+C, of start op een andere poort:  PORT=8080 npm start\n`);
+    process.exit(1);
+  }
+  throw fout;
 }).listen(POORT, () => console.log(`Reken je Rot! draait op http://localhost:${POORT}  (stoppen: Ctrl+C)`));
