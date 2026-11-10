@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lokaal",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/Users/maarten/Documents/rekenjerot/tools/server.mjs"
+      ],
+      "port": 8000
+    }
+  ]
+}

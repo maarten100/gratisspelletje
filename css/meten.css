@@ -1,0 +1,50 @@
+/* Rekenraket – plaatjes voor het domein Meten (js/ex-meten.js). Alle klassen beginnen met mt-. */
+
+/* twee klokken naast elkaar (begin / eind) */
+.mt-two { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-end; }
+.mt-two figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mt-two figcaption { font-weight: 800; color: var(--muted); font-size: .95rem; }
+.clock.mt-sm { width: min(140px, 40vw); }
+.clock.mt-ch { width: min(110px, 32vw); }
+.mt-two .digital { font-size: 2rem; padding: 6px 12px; }
+.mt-dset { white-space: nowrap; }
+.mt-ans { text-align: center; font-size: 1.2rem; font-weight: 700; margin: 12px 0 0; }
+
+/* kalender */
+.mt-cal { border-collapse: collapse; margin: 0 auto; background: var(--card); font-weight: 700; max-width: 100%; }
+.mt-cal caption { font-weight: 800; padding-bottom: 6px; color: var(--ink); text-transform: capitalize; }
+.mt-cal th { color: var(--muted); font-size: .8rem; padding: 4px 0; width: 40px; }
+.mt-cal td { text-align: center; padding: 6px 0; width: 40px; border: 1px solid var(--line); color: var(--ink); }
+.mt-cal th:nth-child(n+6), .mt-cal td:nth-child(n+6) { color: var(--bad); }
+.mt-cal td.mt-on { background: var(--accent); color: var(--ink); border-radius: 50%; }
+
+/* figuren (omtrek, oppervlakte, balk, blokken) */
+.mt-svg { width: 100%; max-width: 340px; height: auto; display: block; margin: 0 auto; }
+.mt-shape { fill: color-mix(in srgb, var(--g6) 18%, var(--card)); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+.mt-dash { stroke: var(--bad); stroke-width: 2; stroke-dasharray: 5 4; }
+.mt-lbl { font-size: 13px; font-weight: 800; fill: var(--ink); font-family: var(--font); }
+.mt-bf, .mt-bt, .mt-br { stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+.mt-bf { fill: color-mix(in srgb, var(--g6) 35%, var(--card)); }
+.mt-bt { fill: color-mix(in srgb, var(--g6) 15%, var(--card)); }
+.mt-br { fill: color-mix(in srgb, var(--g6) 55%, var(--card)); }
+
+/* blokkenbouwsel */
+.mt-blok { max-width: 280px; }
+.mt-floor { fill: color-mix(in srgb, var(--line) 80%, var(--card)); stroke: var(--muted); stroke-width: 1; stroke-opacity: .6; }
+.mt-cf, .mt-ct, .mt-cr { stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+.mt-cf { fill: color-mix(in srgb, var(--accent) 75%, var(--card)); }
+.mt-ct { fill: color-mix(in srgb, var(--accent) 35%, var(--card)); }
+.mt-cr { fill: color-mix(in srgb, var(--accent) 80%, var(--ink) 20%); }
+
+/* plattegrond en aanzicht (ook in de keuzeknoppen) */
+.mt-plat, .mt-view { height: auto; display: block; margin: 0 auto; }
+.mt-plat { width: min(110px, 30vw); }
+.mt-view { width: min(90px, 26vw); }
+.mt-pc { fill: var(--card); stroke: var(--ink); stroke-width: 1.5; }
+.mt-pe { fill: color-mix(in srgb, var(--line) 50%, var(--card)); stroke: var(--line); stroke-width: 1; }
+.mt-pn { font-size: 13px; font-weight: 800; fill: var(--primary); font-family: var(--font); }
+.mt-pv { font-size: 10px; font-weight: 700; fill: var(--muted); font-family: var(--font); }
+.mt-vc { fill: color-mix(in srgb, var(--accent) 75%, var(--card)); stroke: var(--ink); stroke-width: 1.5; }
+.mt-vg { stroke: var(--ink); stroke-width: 2; }
+.voorbeeld .mt-plat { width: 60px; }
+.voorbeeld .mt-view { width: 50px; }

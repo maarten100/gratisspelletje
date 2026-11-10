@@ -14,6 +14,7 @@ export function laadOud(pad) {
   return {
     EX: vm.runInContext('EX', ctx),
     KOPPELINGEN: vm.runInContext('KOPPELINGEN', ctx),
+    CATS: vm.runInContext('CATS', ctx),
     mathObj: vm.runInContext('Math', ctx)
   };
 }

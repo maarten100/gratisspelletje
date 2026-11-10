@@ -108,7 +108,7 @@ function seeded(seed) {
 const hashString = s => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) | 0, 7);
 
 /* Draai alle controles. mathObj = het Math-object dat de oefeningen gebruiken (om toeval vast te zetten). */
-export function controleerAlles({ EX, KOPPELINGEN, mathObj }) {
+export function controleerAlles({ EX, CATS, KOPPELINGEN, mathObj }) {
   const fouten = [];                 // { id, probleem, voorbeeld }
   const vingerafdruk = {};           // id → hash van de gemaakte vragen (voor vergelijken oud/nieuw)
   const echteRandom = mathObj.random;
@@ -128,6 +128,8 @@ export function controleerAlles({ EX, KOPPELINGEN, mathObj }) {
     vingerafdruk[id] = h.digest('hex').slice(0, 12);
   }
   mathObj.random = echteRandom;
+  /* ook de volgorde van de categorieën in de app moet gelijk blijven */
+  vingerafdruk['(volgorde categorieën)'] = CATS.map(c => c.id).join(' ');
 
   const kapot = [];
   for (const k of KOPPELINGEN) for (const s of k.sections || []) for (const it of s.items || [])

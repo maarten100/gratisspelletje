@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Reken je Rot! — gratis rekenen oefenen voor groep 1 t/m 8",
   "scripts": {
+    "start": "node tools/server.mjs",
     "test": "node tests/test.mjs"
   }
 }

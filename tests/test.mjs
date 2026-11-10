@@ -28,9 +28,9 @@ if (oudPad) {
   bron = laadOud(oudPad);
   console.log(`Bron: oude ${oudPad}`);
 } else {
-  const { EX } = await import('../js/oefeningen.js');
+  const { EX, CATS } = await import('../js/oefeningen.js');
   const { KOPPELINGEN } = await import('../js/koppelingen.js');
-  bron = { EX, KOPPELINGEN, mathObj: Math };
+  bron = { EX, CATS, KOPPELINGEN, mathObj: Math };
   console.log('Bron: losse bestanden in js/');
 }
 
