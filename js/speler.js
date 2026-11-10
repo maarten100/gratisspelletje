@@ -251,7 +251,7 @@ export function runSession(el, { title, ids, mode, total, sec, onFinish }) {
       if (btn && w.wrong) w.wrong(btn);
       fb.className = 'feedback bad';
       fb.innerHTML = `Bijna! Probeer het nog eens. <div class="hint">💡 ${cur.hint}</div>`;
-      $('.qcard', el).classList.add('shake'); setTimeout(() => $('.qcard', el).classList.remove('shake'), 400);
+      const qc = $('.qcard', el); qc.classList.add('shake'); setTimeout(() => qc.classList.remove('shake'), 400);
       if (w.reset) w.reset();
     } else {
       locked = true;

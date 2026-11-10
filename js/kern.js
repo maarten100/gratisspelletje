@@ -1,5 +1,5 @@
 /* Rekenraket – kern: hulpfuncties, vraag-bouwers, plaatjes en het register van oefeningen.
-   Zie SPEC.md voor het vraagformaat. */
+   Het vraagformaat staat hieronder bij de vraag-bouwers. */
 
 /* ===================== hulpfuncties ===================== */
 export const R = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
@@ -63,7 +63,16 @@ export function getalWoord(n) {
 }
 
 /* ===================== vraag-bouwers ===================== */
-/* Zie SPEC.md. Elke bouwer geeft een vraag-object terug. Extra velden via o (vis, unit, pre, frac, ...). */
+/* Elke bouwer geeft een vraag-object terug. Altijd aanwezig:
+     type  – soort vraag: num, choice, multi, order, line, clock, count, pay of colour
+     q     – de vraagtekst (mag HTML bevatten)
+     a     – het goede antwoord als tekst (voor de nakijklijst)
+     hint  – tip die het kind na een fout ziet
+   Veelgebruikte extra velden via o:
+     vis   – plaatje (HTML) bij de vraag
+     unit  – eenheid achter (of met pre: vóór) het invulvak, bv. 'cm' of '€'
+     frac  – kind mag een breuk intypen;  noFrac – breuken niet als plaatje tonen
+   De sommen-speler (speler.js) heeft per type een widget die het antwoord nakijkt. */
 export function num(q, v, hint, o = {}) {
   return Object.assign({ type: 'num', q, v, a: nl(v, v >= 10000), hint }, o);
 }
