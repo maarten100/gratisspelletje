@@ -11,7 +11,8 @@
    2. Alle oefening-ID's in KOPPELINGEN bestaan echt.
    3. Met vast "toeval" maken alle oefeningen precies dezelfde sommen als de opgeslagen vingerafdruk.
       Zo zien we meteen als het opsplitsen of opruimen per ongeluk het gedrag verandert.
-   4. De opslag zet oude voortgang goed over en wist nooit de oude gegevens. */
+   4. De opslag zet oude voortgang goed over en wist nooit de oude gegevens.
+   5. Alle bestanden van de app staan in de offline-lijst van sw.js en alle iconen bestaan. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -81,6 +82,12 @@ if (!oudPad) {
   console.log('\n4. Opslag en overzetten van oude voortgang');
   if (f.length) { mislukt = true; for (const x of f) console.log('   ✗ ' + x); }
   else console.log('   ✓ oude voortgang komt goed over en de reservekopie blijft staan');
+
+  const { testPwa } = await import('./pwa.test.mjs');
+  const p = testPwa();
+  console.log('\n5. PWA: offline-lijst, manifest en iconen');
+  if (p.length) { mislukt = true; for (const x of p) console.log('   ✗ ' + x); }
+  else console.log('   ✓ alle bestanden staan in de offline-lijst en alle iconen bestaan');
 }
 
 console.log(mislukt ? '\n✗ TESTS MISLUKT\n' : '\n✓ ALLE TESTS GESLAAGD\n');

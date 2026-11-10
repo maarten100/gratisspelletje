@@ -375,7 +375,8 @@ document.title = NAAM;
 $('.logo').innerHTML = `<span>${LOGO}</span> ${esc(NAAM)}`;
 $('.logo').setAttribute('aria-label', `${NAAM}, naar start`);
 
-if (false) {
+/* service worker aanzetten: daardoor werkt de app ook offline (zie sw.js) */
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
