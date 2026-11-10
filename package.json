@@ -1,0 +1,9 @@
+{
+  "name": "reken-je-rot",
+  "private": true,
+  "type": "module",
+  "description": "Reken je Rot! — gratis rekenen oefenen voor groep 1 t/m 8",
+  "scripts": {
+    "test": "node tests/test.mjs"
+  }
+}
