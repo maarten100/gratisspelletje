@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { networkInterfaces } from 'node:os';
 
 const MAP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const POORT = Number(process.env.PORT) || 8000;
@@ -32,4 +33,9 @@ createServer(async (req, res) => {
     process.exit(1);
   }
   throw fout;
-}).listen(POORT, () => console.log(`Reken je Rot! draait op http://localhost:${POORT}  (stoppen: Ctrl+C)`));
+}).listen(POORT, () => {
+  console.log(`Reken je Rot! draait op http://localhost:${POORT}  (stoppen: Ctrl+C)`);
+  /* adressen in het eigen netwerk, voor een telefoon of tablet op hetzelfde wifi */
+  const wifi = Object.values(networkInterfaces()).flat().filter(a => a.family === 'IPv4' && !a.internal).map(a => a.address);
+  for (const ip of wifi) console.log(`Op je telefoon of tablet (zelfde wifi):  http://${ip}:${POORT}`);
+});
