@@ -11,7 +11,13 @@ Lees het helemaal voordat je iets aanpast, en houd het bij als er beslissingen b
 - Alles wat ik **zelf** moet doen (Supabase-dashboard, DNS bij TransIP, instellingen op GitHub), leg je stap voor stap uit, met waar ik moet klikken.
 - Kies steeds de **eenvoudigste oplossing** die werkt en die ik later nog kan onderhouden. Geen frameworks of tools als het niet nodig is.
 - Maak kleine commits met duidelijke berichten, zodat we altijd terug kunnen.
-- **Pushen en pull requests doe ik zelf.** Claude pusht niet en maakt geen pull request, maar loodst me er aan het eind van een fase stap voor stap doorheen.
+- **Git en GitHub doet Claude.** Ik heb pushen en pull requests één keer zelf gedaan en begrijp het. Claude doet de git- en GitHub-stappen: branches maken, commits, pushen en de pull request openen.
+- **Claude merget nooit zelf naar `main`.** Voordat iets naar `main` gaat:
+  1. start Claude een lokale testversie en vertelt hoe ik die open, op mijn Mac en op mijn telefoon of tablet (op hetzelfde wifi);
+  2. geeft Claude me een korte testlijst: wat ik moet uitproberen;
+  3. wacht Claude tot ik zeg dat het goed is.
+  Pas daarna opent Claude de pull request, en ik merge hem zelf op github.com.
+- Bij elke pull request legt Claude in één of twee zinnen uit wat erin zit.
 - Werk op een aparte branch per fase, nooit direct op `main`.
 
 ## Wat het is
@@ -75,7 +81,6 @@ tools/server.mjs      npm start → http://localhost:8000
 
 ### Nog open
 - De ouderpagina zegt "alles blijft op dit apparaat, geen account nodig". Dat moet veranderen zodra er accounts zijn (fase 2).
-- **Voortgang op gratisspelletje.com gaat niet vanzelf mee naar rekenjerot.nl.** De browser bewaart gegevens per website. Bestaande gebruikers van gratisspelletje.com houden hun voortgang daar. Oplossing kiezen vóór de lancering op rekenjerot.nl (bv. een overzetknop, of via de accounts uit fase 2).
 
 ## Omgevingen
 
@@ -86,7 +91,7 @@ tools/server.mjs      npm start → http://localhost:8000
 | Wordt bijgewerkt bij | merge/push naar `main` van gratisspelletje | `git push productie main` |
 | Label in de app | TEST | geen |
 
-- Werkwijze: branch → pull request (tests draaien automatisch) → merge naar `main` → staat op de testsite → bevalt het, dan `git push productie main` → staat op rekenjerot.nl.
+- Werkwijze: branch → lokaal testen door Maarten → pull request (tests draaien automatisch) → Maarten merget naar `main` → staat op de testsite → bevalt het en zegt Maarten "zet live", dan `git push productie main` → staat op rekenjerot.nl.
 - Beide repo's gebruiken dezelfde `.github/workflows/website.yml` (Pages-bron: "GitHub Actions"). Het domein staat in de repo-instellingen, niet in een bestand. Het `CNAME`-bestand wordt daardoor niet meer gebruikt.
 - Waarom twee repo's: GitHub Pages geeft één website per repo.
 
@@ -150,3 +155,7 @@ Meer korte rekenspelletjes en oefenvormen. Later eventueel de leerkrachtomgeving
   - De badge "Rekenraket" (alles van je groep beheerst) houdt zijn naam.
   - Op elk adres behalve rekenjerot.nl toont de app een label TEST.
   - Pushen en pull requests doet Maarten zelf, met uitleg.
+- **2026-11-14 — Productie en werkwijze**
+  - Voortgang van gratisspelletje.com hoeft niet mee naar rekenjerot.nl: daar zijn vrijwel geen gebruikers. Geen overzetknop nodig.
+  - Claude doet voortaan branches, commits, pushen en de pull request; Maarten test eerst lokaal (Mac en telefoon/tablet op hetzelfde wifi) en merget zelf.
+  - `npm start` toont ook het wifi-adres, zodat de testversie op telefoon of tablet te openen is.

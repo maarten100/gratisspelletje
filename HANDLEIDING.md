@@ -10,6 +10,8 @@ npm start
 
 Open daarna **http://localhost:8000** in je browser. Linksboven staat dan het label **TEST**. Stoppen doe je met `Ctrl + C` in de Terminal.
 
+**Op je telefoon of tablet:** zorg dat die op hetzelfde wifi zit als je Mac. `npm start` laat ook een adres zien als `http://192.168.1.23:8000`; typ dat in de browser van je telefoon. Vraagt je Mac of Node verbindingen mag ontvangen, klik dan **Sta toe**. (Offline werken en "installeren" doen het via dit adres niet; dat kan alleen op een echte https-site.)
+
 (Dubbelklikken op `index.html` werkt niet meer. Browsers laden de losse codebestanden alleen via zo'n servertje.)
 
 ## Testen
@@ -29,13 +31,10 @@ Je ziet vijf controles met een ✓. Staat er ergens een ✗, dan is er iets kapo
 | Zo komt het online | pull request mergen naar `main` | `git push productie main` |
 
 Normale werkwijze:
-1. Werk op een aparte branch en open een pull request. GitHub draait dan de tests. Een groen vinkje betekent dat het in orde is.
-2. Merge de pull request. Na een paar minuten staat de nieuwe versie op **gratisspelletje.com**.
-3. Probeer het daar uit. Bevalt het, typ dan:
-   ```bash
-   git push productie main
-   ```
-   Na een paar minuten staat dezelfde versie op **rekenjerot.nl**.
+1. Claude werkt op een aparte branch, start een testversie op je Mac en geeft je een testlijst.
+2. Zeg je dat het goed is, dan opent Claude een pull request. GitHub draait de tests; een groen vinkje betekent dat het in orde is.
+3. Jij merget de pull request op github.com. Na een paar minuten staat de nieuwe versie op **gratisspelletje.com**.
+4. Bevalt het daar, zeg dan tegen Claude "zet live". Claude typt dan `git push productie main` en na een paar minuten staat dezelfde versie op **rekenjerot.nl**.
 
 ## Eenmalig instellen
 
@@ -84,7 +83,7 @@ Doe dit vlak vóór je de pull request van fase 1 merget.
 4. In de repo **rekenjerot**: ga naar **Settings → Pages → Custom domain**, vul `rekenjerot.nl` in en klik **Save**. Wacht tot de controle groen is en vink dan **Enforce HTTPS** aan.
 
 ## Goed om te weten
-- **Voortgang van kinderen** staat in hun eigen browser, per website. Kinderen die nu op gratisspelletje.com oefenen, zien hun sterren dus niet vanzelf op rekenjerot.nl. Hiervoor kiezen we nog een oplossing vóór de echte lancering.
+- **Voortgang van kinderen** staat in hun eigen browser, per website. Sterren van gratisspelletje.com gaan dus niet mee naar rekenjerot.nl (dat hoeft ook niet: de testsite is om te testen).
 - **Een nieuw bestand toegevoegd?** Zet het in de lijst `BESTANDEN` in `sw.js` en verhoog `VERSIE`. `npm test` waarschuwt als je het vergeet.
 - **Naam veranderen?** Pas `js/config.js`, `index.html` en `manifest.json` aan.
 - **App-icoon veranderen?** Pas `iconen/icoon.svg` aan en typ `npm run iconen`.
