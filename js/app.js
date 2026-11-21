@@ -1,11 +1,11 @@
 /* App: routes en schermen. Dit is het startpunt dat index.html laadt. */
 import './oefeningen.js';   // eerst alle oefeningen registreren
-import { NAAM, LOGO, IS_TEST } from './config.js';
+import { NAAM, LOGO, IS_TEST, INSTALL_MELDING_NA_MINUTEN, INSTALL_MELDING_OPNIEUW_NA_DAGEN } from './config.js';
 import { CAT, CATS, DOMAINS, EX, fracHTML, GROEPEN, nl, pick } from './kern.js';
 import { KOPPELINGEN } from './koppelingen.js';
 import { GAMES } from './spellen.js';
 import { $, $$, beep, confetti, esc, fr, updateTop } from './scherm.js';
-import { S, save, wisVoortgang } from './opslag.js';
+import { S, apparaatInstelling, save, wisVoortgang, zetApparaatInstelling } from './opslag.js';
 import { aantal, aantalSterren, addStars, bewaarToets, dagenOpRij, gradeStars, inGroep, langsteDagenOpRij, mastery, starStr, tel, today, touchDay } from './voortgang.js';
 import { runSession } from './speler.js';
 
@@ -33,6 +33,7 @@ function route() {
   };
   (views[view] || viewHome)(parts.slice(1), params);
   updateTop();
+  if (view !== 'sessie' && view !== 'spel') misschienInstallMelding();
   window.scrollTo(0, 0);
   app.focus({ preventScroll: true });
 }
@@ -60,7 +61,7 @@ function viewHome() {
     <div class="tiles">${tiles.map(([h, e, t, s, c]) => `<a class="tile ${c}" href="#/${h}"><span class="emoji">${e}</span><b>${esc(t)}</b><small>${s}</small></a>`).join('')}</div>
     ${recent ? `<p class="recent">Laatste toets: <b>${esc(recent.title)}</b> · ${recent.score}/${recent.total} · cijfer ${nl(recent.cijfer)}</p>` : ''}
     <div id="install"></div>
-    <p class="foot"><a href="#/profiel">Profiel wijzigen</a> · <a href="#/ouders">Voor ouders &amp; leerkrachten</a></p>`;
+    <p class="foot"><a href="#/profiel">Profiel wijzigen</a> · <a href="#/ouders">Voor ouders, verzorgers en leerkrachten</a></p>`;
   renderInstall();
 }
 
@@ -338,7 +339,7 @@ function viewProfile(first) {
 
 function viewOuders() {
   const n = Object.keys(EX).length;
-  app.innerHTML = `<h1>Voor ouders & leerkrachten</h1>
+  app.innerHTML = `<h1>Voor ouders, verzorgers en leerkrachten</h1>
     <article class="card uitleg"><h2>Wat is ${NAAM}</h2>
     <p>${NAAM} is een gratis oefenapp voor rekenen in groep 1 tot en met 8, met ${n} soorten oefeningen in ${CATS.length} onderwerpen, verdeeld over de domeinen ${DOMAINS.map(d => d.title.toLowerCase()).join(', ')}.</p>
     <ul><li><b>Oefenen</b>: kies een of meer soorten sommen. Na een fout volgt een hulpje.</li>
@@ -360,8 +361,8 @@ window.addEventListener('appinstalled', () => { installEvt = null; renderInstall
 function renderInstall() {
   const box = $('#install');
   if (!box) return;
-  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = isGeinstalleerd();
+  const ios = isIOS();
   if (standalone) { box.innerHTML = ''; return; }
   if (installEvt) {
     box.innerHTML = `<div class="card install"><span class="emoji">📲</span><div><b>Zet ${NAAM} op je tablet of telefoon</b><small>Dan werkt het ook zonder internet.</small></div><button class="btn primary" id="inst">Installeren</button></div>`;
@@ -369,6 +370,45 @@ function renderInstall() {
   } else if (ios) {
     box.innerHTML = `<div class="card install"><span class="emoji">📲</span><div><b>Zet ${NAAM} op je beginscherm</b><small>Tik op <b>Deel</b> ⬆️ en kies <b>Zet op beginscherm</b>.</small></div></div>`;
   } else box.innerHTML = '';
+}
+
+/* Na een tijdje oefenen: een melding "zet de app op je beginscherm".
+   Alleen als installeren hier kan en de app nog niet geïnstalleerd is, nooit midden in een oefening
+   of spelletje, hooguit één keer per bezoek, en na "Later" pas weer na een paar dagen. */
+const appGestart = Date.now();
+let installMeldingGetoond = false;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isGeinstalleerd = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+function misschienInstallMelding() {
+  if (installMeldingGetoond || isGeinstalleerd() || !(installEvt || isIOS())) return;
+  if (Date.now() - appGestart < INSTALL_MELDING_NA_MINUTEN * 60e3) return;
+  const laatst = apparaatInstelling('installGevraagd');
+  if (laatst && Date.now() - laatst < INSTALL_MELDING_OPNIEUW_NA_DAGEN * 864e5) return;
+  installMeldingGetoond = true;
+  zetApparaatInstelling('installGevraagd', Date.now());
+  const vorigeFocus = document.activeElement;
+  const m = document.createElement('div');
+  m.className = 'melding-achter';
+  m.innerHTML = `<div class="card melding" role="dialog" aria-modal="true" aria-labelledby="melding-titel">
+    <img src="iconen/icoon.svg" alt="" width="72" height="72">
+    <h2 id="melding-titel">Zet ${esc(NAAM)} op je beginscherm</h2>
+    ${installEvt
+      ? `<p>Dan staat de app tussen je andere apps en kun je ook rekenen zonder internet.</p>
+         <div class="knoppen"><button class="btn primary big" data-doe="installeren">Installeren</button><button class="btn" data-doe="later">Later</button></div>`
+      : `<p>Dan staat de app tussen je andere apps en kun je ook rekenen zonder internet.</p>
+         <ol class="stappen"><li>Tik op <b>Deel</b> <span aria-hidden="true">⬆️</span> (bovenaan of onderaan het scherm).</li><li>Kies <b>Zet op beginscherm</b>.</li><li>Tik op <b>Voeg toe</b>.</li></ol>
+         <div class="knoppen"><button class="btn primary big" data-doe="later">Oké</button></div>`}
+  </div>`;
+  document.body.appendChild(m);
+  const sluit = () => { m.remove(); document.removeEventListener('keydown', toets); if (vorigeFocus) vorigeFocus.focus?.({ preventScroll: true }); };
+  const toets = e => { if (e.key === 'Escape') sluit(); };
+  document.addEventListener('keydown', toets);
+  m.addEventListener('click', async e => {
+    const doe = e.target.closest('[data-doe]')?.dataset.doe;
+    if (e.target === m || doe === 'later') return sluit();
+    if (doe === 'installeren' && installEvt) { sluit(); installEvt.prompt(); await installEvt.userChoice; installEvt = null; renderInstall(); }
+  });
+  $('.melding .btn', m).focus();
 }
 
 /* naam en logo uit config.js in de bovenbalk en de titel */

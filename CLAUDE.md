@@ -7,6 +7,7 @@ Lees het helemaal voordat je iets aanpast, en houd het bij als er beslissingen b
 
 - Ik ben Maarten. Ik heb **geen programmeerervaring**. Leg dus in gewoon Nederlands uit wat je doet en waarom, zonder jargon.
 - Communiceer in het **Nederlands**. Code-commentaar ook in het Nederlands (zoals nu al).
+- Niet alle kinderen hebben ouders: zeg **altijd "ouder(s) of verzorger(s)"**, nooit alleen "ouders" of "papa of mama". In de app bijvoorbeeld "je ouder of verzorger", "ouders en verzorgers".
 - Werk **per fase** (zie hieronder). Maak aan het eind van elke fase een korte samenvatting: wat is er veranderd, hoe kan ik het testen, wat moet ik zelf doen. Wacht dan op mijn akkoord voordat je aan de volgende fase begint.
 - Alles wat ik **zelf** moet doen (Supabase-dashboard, DNS bij TransIP, instellingen op GitHub), leg je stap voor stap uit, met waar ik moet klikken.
 - Kies steeds de **eenvoudigste oplossing** die werkt en die ik later nog kan onderhouden. Geen frameworks of tools als het niet nodig is.
@@ -39,7 +40,7 @@ Het begon om mijn zoon te helpen met rekenen; nu wil ik dat veel meer kinderen h
 - 5 korte rekenspelletjes (Tafelrace, Ballonnen, Memory, Groter of kleiner, Getallenlijn).
 - Eén profiel per apparaat (nog geen accounts).
 
-**Belangrijk:** bestaande gebruikers hebben voortgang in localStorage (`rekenraket-v2`, sinds fase 1 overgenomen in `rekenjerot-v3`). Die mag nooit verloren gaan.
+**Belangrijk:** bestaande gebruikers hebben voortgang in localStorage (`rekenraket-v2`, in fase 1 overgenomen in `rekenjerot-v3`, in fase 2a in `rekenjerot-v4`). Die mag nooit verloren gaan.
 
 ## Opbouw van de code (na fase 1)
 
@@ -56,8 +57,9 @@ js/domeinen/*.js      getallen, bewerkingen, meten, verhoudingen, verbanden (reg
 js/oefeningen.js      laadt alle domeinen; volgorde = volgorde in de app
 js/koppelingen.js     KOPPELINGEN: methodeblokken en toetstraining
 js/spellen.js         de rekenspelletjes (GAMES)
-js/opslag.js          opslaglaag: S, save(), migratie van oude sleutels
-js/voortgang.js       dagen op rij, sterren, record(), mastery()
+js/kind.js            gegevensformaat van één kind, overzetten van oude versies, samenvoegregels
+js/opslag.js          opslaglaag: S (het actieve kind), save(), apparaatcode, migratie van oude sleutels
+js/voortgang.js       dagen op rij, sterren, tellers, toetsgeschiedenis, record(), mastery()
 js/scherm.js          $, $$, esc, fr, geluid, confetti, bovenbalk
 js/speler.js          de sommen-speler (WIDGETS per vraagtype, runSession)
 js/app.js             router en schermen; startpunt
@@ -68,7 +70,8 @@ tools/server.mjs      npm start → http://localhost:8000
 ```
 
 - Modules importeren expliciet wat ze gebruiken. Domeinbestanden mogen geen browser-dingen (document, localStorage) gebruiken bij het laden, anders werken de tests niet.
-- **Opslag:** alleen `js/opslag.js` leest/schrijft. Sleutel `rekenjerot-v3` (met `versie`). De oude sleutel `rekenraket-v2` wordt bij de eerste keer overgenomen en **nooit gewist** (reservekopie). Kapotte gegevens worden apart bewaard (`rekenjerot-v3-kapot-<tijd>`).
+- **Opslag:** alleen `js/opslag.js` leest/schrijft. Sleutel `rekenjerot-v4` (met `versie`): een apparaatcode, het actieve kind en één of meer kinderen (formaat in `js/kind.js`). De oude sleutels `rekenjerot-v3` en `rekenraket-v2` worden bij de eerste keer overgenomen en **nooit gewist** (reservekopie). Kapotte gegevens worden apart bewaard (`rekenjerot-v4-kapot-<tijd>`).
+- Sterren en tellers (aantal keer geoefend, toetsen, ...) staan **per apparaat** in `tellers`; lees ze altijd via `aantalSterren()` en `aantal()` uit `voortgang.js`, nooit rechtstreeks. Dagen op rij worden berekend uit de lijst `dagen`.
 - **Service worker:** netwerk eerst, cache als terugval. Nieuw bestand? Zet het in `BESTANDEN` in `sw.js` (de test controleert dit) en verhoog `VERSIE`.
 - **Naam wijzigen:** `js/config.js`, `index.html` (title, apple-mobile-web-app-title, bovenbalk) en `manifest.json`.
 
@@ -76,7 +79,8 @@ tools/server.mjs      npm start → http://localhost:8000
 1. Elke oefening maakt 200 vragen: geen NaN, antwoord past bij het type, goede keuze staat ertussen.
 2. Alle ID's in `KOPPELINGEN` bestaan.
 3. Vingerafdruk (`tests/vingerafdruk.json`): met vast toeval moeten alle oefeningen dezelfde sommen maken, en de categorievolgorde moet gelijk blijven. Bewust een oefening toegevoegd of veranderd? Dan `npm test -- --bewaar`.
-4. Opslag: oude voortgang komt goed over, reservekopie blijft staan.
+4. Opslag: oude voortgang (versie 2 en 3) komt goed over, reservekopieën blijven staan.
+   4b. Samenvoegen: niets telt dubbel, niets raakt kwijt, A+B = B+A.
 5. PWA: alle bestanden staan in de offline-lijst, alle iconen bestaan.
 
 ### Nog open
@@ -100,12 +104,20 @@ tools/server.mjs      npm start → http://localhost:8000
 ### Accounts en voortgang
 - **Een kind moet direct kunnen beginnen, zonder account.** Voortgang wordt eerst lokaal opgeslagen.
 - Een account is optioneel en wordt aangemaakt door een **ouder** (e-mail, het liefst met een inloglink zonder wachtwoord). Kinderen hebben geen e-mail of eigen account.
-- Na een paar sessies verschijnt een vriendelijke melding voor het kind ("Wil je je sterren bewaren, ook op een andere tablet? Vraag papa of mama"). Die leidt naar een **ouderpoort**. Gebruik daarvoor **geen rekensom** (kinderen kunnen rekenen!), maar bijvoorbeeld een voluit geschreven woord typen of een knop drie seconden ingedrukt houden.
+- Na een paar sessies verschijnt een vriendelijke melding voor het kind ("Wil je je sterren bewaren, ook op een andere tablet? Vraag het aan je ouder of verzorger"). Die leidt naar een **ouderpoort**. Gebruik daarvoor **geen rekensom** (kinderen kunnen rekenen!), maar bijvoorbeeld een voluit geschreven woord typen of een knop drie seconden ingedrukt houden.
 - Bij het aanmaken van een account herkent de app de lokale voortgang en biedt aan die over te zetten naar een kindprofiel.
 - Een ouder kan **meerdere kindprofielen** hebben (voornaam of bijnaam, avatar, groep, methode). Op een gedeeld apparaat kiest het kind zijn eigen avatar.
 - De **ouderomgeving** zit achter een **pincode** die de ouder instelt.
 - **Apparaten koppelen:** de ouder logt één keer in op een apparaat, daarna blijft het gekoppeld. Extra optie: een tijdelijke koppelcode of QR-code uit de ouderomgeving, zodat de ouder zijn e-mail niet op elk apparaat hoeft te gebruiken.
 - **Lokaal blijft de basis:** de app werkt ook offline en synchroniseert zodra er verbinding is. Ontwerp duidelijke samenvoegregels voor als twee apparaten offline geoefend hebben (bijvoorbeeld: per oefening de record met de meeste pogingen, geschiedenis samenvoegen zonder dubbelingen, sterren niet dubbel tellen). Beschrijf de gekozen regels in dit bestand.
+- **Samenvoegregels** (gebouwd in `js/kind.js`, getest in `tests/samenvoegen.test.mjs`):
+  - per oefening telt de versie met de **meeste pogingen**;
+  - **sterren en tellers**: elk apparaat houdt ze apart bij; per apparaat telt het hoogste getal, het totaal is de optelsom. Zo telt niets dubbel;
+  - **dagen**: de dagen waarop geoefend is worden samengevoegd, elke dag één keer; "dagen op rij" wordt daaruit berekend. Badges kijken naar de langste reeks ooit, zodat een verdiende badge niet verdwijnt;
+  - **toetsgeschiedenis**: samengevoegd zonder dubbelingen (elke toets heeft een eigen id), maximaal 50;
+  - **records** (toetscijfer, op tijd, spelletjes): het beste telt (bij Memory is lager beter);
+  - **naam, avatar, groep, methode**: de laatste wijziging telt;
+  - **geluid en filter** blijven per apparaat.
 - **Backend:** Supabase, **EU-regio**, gratis tier. Row Level Security is verplicht: een ouder ziet alleen zijn eigen kinderen.
 - **Privacy (AVG, kinderen):** sla zo weinig mogelijk op over een kind. Geen achternaam, geen geboortedatum, alleen voornaam/bijnaam, avatar, groep, methode en voortgang. Een ouder moet een kindprofiel en het hele account zelf kunnen verwijderen. Geen tracking, geen advertenties, geen cookies behalve wat strikt nodig is voor het inloggen. Schrijf een begrijpelijke privacyverklaring.
 
@@ -134,7 +146,7 @@ tools/server.mjs      npm start → http://localhost:8000
 6. Zet de omgevingen op: de test op gratisspelletje.com, productie op rekenjerot.nl. Stel de eenvoudigste opzet voor die ik kan begrijpen (bijvoorbeeld één repo met een testbranch en een productiebranch die automatisch naar de juiste site gaan) en leg uit wat ik bij GitHub en TransIP moet doen.
 
 ### Fase 2 — Accounts
-Supabase-project (ik maak het aan met jouw uitleg), datamodel, inloggen voor ouders, kindprofielen, pincode, ouderpoort, apparaten koppelen, synchroniseren met samenvoegregels, en het overzetten van lokale voortgang bij de eerste login. Pas de privacytekst aan.
+Supabase-project (ik maak het aan met jouw uitleg), datamodel, inloggen voor ouders/verzorgers, kindprofielen, pincode, ouderpoort, apparaten koppelen, synchroniseren met samenvoegregels, en het overzetten van lokale voortgang bij de eerste login. Pas de privacytekst aan.
 
 ### Fase 3 — Ouderomgeving
 Voortgang en geschiedenis per kind, groep en methode aanpassen, oefeningen klaarzetten met de sectie "Oefeningen van [naam ouder]", kindprofiel en account verwijderen.
@@ -159,3 +171,13 @@ Meer korte rekenspelletjes en oefenvormen. Later eventueel de leerkrachtomgeving
   - Voortgang van gratisspelletje.com hoeft niet mee naar rekenjerot.nl: daar zijn vrijwel geen gebruikers. Geen overzetknop nodig.
   - Claude doet voortaan branches, commits, pushen en de pull request; Maarten test eerst lokaal (Mac en telefoon/tablet op hetzelfde wifi) en merget zelf.
   - `npm start` toont ook het wifi-adres, zodat de testversie op telefoon of tablet te openen is.
+- **2026-11-21 — Fase 2: keuzes en stap 2a**
+  - Fase 2 in vijf stappen, elk met eigen branch, test en pull request: 2a opslag klaar voor samenvoegen; 2b Supabase inrichten; 2c ouderpoort, inloggen, pincode, kindprofielen en overzetten; 2d synchroniseren, kind kiezen op gedeeld apparaat, koppelcode; 2e privacyverklaring en ouderpagina.
+  - Inloggen alleen met een **code van 6 cijfers** in de mail, geen inloglink (een link opent op iPad in Safari in plaats van in de geïnstalleerde app).
+  - **Twee Supabase-projecten**: één voor test (gratisspelletje.com), één voor productie (rekenjerot.nl).
+  - **Ouderpoort**: knop 3 seconden ingedrukt houden (ook met toetsenbord; zonder tekstselectie of menu op iPad).
+  - Het Supabase-programma staat in de eigen map (niet van een andere website laden): werkt offline, geen derde partij.
+  - Altijd "ouder(s) of verzorger(s)" zeggen.
+  - Opslag versie 4 (`rekenjerot-v4`) met apparaatcode, meerdere kinderen en samenvoegregels.
+  - Melding "zet op je beginscherm": na 3 minuten in de app, niet midden in een oefening of spel, en na "Later" pas weer na 7 dagen (instelbaar in `js/config.js`). Alleen als installeren op dat apparaat kan (Android/Chrome: knop Installeren; iPhone/iPad: uitleg met Deel → Zet op beginscherm). Icoon is nog een plaatshouder.
+
