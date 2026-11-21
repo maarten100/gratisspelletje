@@ -12,6 +12,7 @@
    3. Met vast "toeval" maken alle oefeningen precies dezelfde sommen als de opgeslagen vingerafdruk.
       Zo zien we meteen als het opsplitsen of opruimen per ongeluk het gedrag verandert.
    4. De opslag zet oude voortgang goed over en wist nooit de oude gegevens.
+      4b. Samenvoegen van twee apparaten: niets telt dubbel, niets raakt kwijt.
    5. Alle bestanden van de app staan in de offline-lijst van sw.js en alle iconen bestaan. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -82,6 +83,12 @@ if (!oudPad) {
   console.log('\n4. Opslag en overzetten van oude voortgang');
   if (f.length) { mislukt = true; for (const x of f) console.log('   ✗ ' + x); }
   else console.log('   ✓ oude voortgang komt goed over en de reservekopie blijft staan');
+
+  const { testSamenvoegen } = await import('./samenvoegen.test.mjs');
+  const sv = testSamenvoegen();
+  console.log('\n4b. Samenvoegen van twee apparaten');
+  if (sv.length) { mislukt = true; for (const x of sv) console.log('   ✗ ' + x); }
+  else console.log('   ✓ niets telt dubbel en niets raakt kwijt');
 
   const { testPwa } = await import('./pwa.test.mjs');
   const p = testPwa();

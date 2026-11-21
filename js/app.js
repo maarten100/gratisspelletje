@@ -6,7 +6,7 @@ import { KOPPELINGEN } from './koppelingen.js';
 import { GAMES } from './spellen.js';
 import { $, $$, beep, confetti, esc, fr, updateTop } from './scherm.js';
 import { S, save, wisVoortgang } from './opslag.js';
-import { addStars, gradeStars, inGroep, mastery, starStr, today, touchDay } from './voortgang.js';
+import { aantal, aantalSterren, addStars, bewaarToets, dagenOpRij, gradeStars, inGroep, langsteDagenOpRij, mastery, starStr, tel, today, touchDay } from './voortgang.js';
 import { runSession } from './speler.js';
 
 const app = $('#app');
@@ -48,14 +48,14 @@ function viewHome() {
     [mine ? `koppeling/${mine.id}?g=${g}` : 'methoden', '🏫', mine ? mine.short || mine.title : 'Mijn rekenmethode', mine ? `Groep ${g} · per blok` : 'Oefen per blok van je methode', 't3'],
     ['methoden?s=toetsen', '📝', 'Toetstraining', 'Cito LIB & IEP', 't4'],
     ['spellen', '🎮', 'Spelletjes', 'Reken je rot!', 't2'],
-    ['voortgang', '🏆', 'Mijn voortgang', `${S.stars} sterren verdiend`, 't5']
+    ['voortgang', '🏆', 'Mijn voortgang', `${aantalSterren()} sterren verdiend`, 't5']
   ];
   const recent = S.history.slice(0, 1)[0];
   app.innerHTML = `
     <section class="hero">
       <div class="avatar">${p.avatar}</div>
       <div><h1>Hoi ${esc(p.name)}!</h1>
-      <p>Groep ${g} · ${S.streak > 1 ? `🔥 ${S.streak} dagen op rij aan het rekenen!` : 'Klaar om te rekenen?'}</p></div>
+      <p>Groep ${g} · ${dagenOpRij() > 1 ? `🔥 ${dagenOpRij()} dagen op rij aan het rekenen!` : 'Klaar om te rekenen?'}</p></div>
     </section>
     <div class="tiles">${tiles.map(([h, e, t, s, c]) => `<a class="tile ${c}" href="#/${h}"><span class="emoji">${e}</span><b>${esc(t)}</b><small>${s}</small></a>`).join('')}</div>
     ${recent ? `<p class="recent">Laatste toets: <b>${esc(recent.title)}</b> · ${recent.score}/${recent.total} · cijfer ${nl(recent.cijfer)}</p>` : ''}
@@ -189,13 +189,13 @@ function viewSessie([mode], params) {
     const key = title;
     let html;
     if (mode === 'oefen') {
-      S.counts.practice++; addStars(r.correct); save();
+      tel('practice'); addStars(r.correct); save();
       if (r.correct === r.total) { beep('win'); confetti(); }
       html = `<div class="emoji huge">${r.correct >= 8 ? '🌟' : r.correct >= 5 ? '👍' : '💪'}</div>
         <h1>${r.correct >= 8 ? 'Super gedaan!' : r.correct >= 5 ? 'Goed bezig!' : 'Blijven oefenen!'}</h1>
         <p class="bigscore">${r.correct}/${r.total} <small>in één keer goed</small></p><p>Je verdiende <b>⭐ ${r.correct}</b> sterren.</p>`;
     } else if (mode === 'tijd') {
-      S.counts.timed++;
+      tel('timed');
       const prev = S.timed[key] || 0, newHigh = r.correct > prev;
       if (newHigh) S.timed[key] = r.correct;
       addStars(Math.ceil(r.correct / 2)); save();
@@ -207,9 +207,8 @@ function viewSessie([mode], params) {
       const score = r.correct, cijfer = Math.max(1, Math.round((1 + 9 * score / r.total) * 10) / 10), norm = Math.round(score / r.total * 10);
       const prev = S.tests[key];
       S.tests[key] = Math.max(prev || 0, norm);
-      S.counts.tests++; if (score === r.total) S.counts.perfect++;
-      S.history.unshift({ title, score, total: r.total, cijfer, date: today(), sec: secs });
-      S.history = S.history.slice(0, 50);
+      tel('tests'); if (score === r.total) tel('perfect');
+      bewaarToets({ title, score, total: r.total, cijfer, date: today(), sec: secs });
       addStars(score); save();
       if (score === r.total) { beep('win'); confetti(); } else if (norm >= 8) beep('win');
       const wrong = r.items.filter(x => !x.ok);
@@ -245,9 +244,10 @@ function viewSpel([id]) {
     groep: S.profile.groep, beep, confetti,
     finish(key, score, { lower }) {
       const rec = S.games[key] = S.games[key] || { plays: 0 };
+      if (lower) rec.lower = true;
       const newHigh = rec.high == null || (lower ? score < rec.high : score > rec.high);
       if (newHigh) rec.high = score;
-      rec.plays++; S.counts.games++;
+      rec.plays++; tel('games');
       const stars = lower ? Math.max(1, 16 - score) : Math.ceil(score / (key.startsWith('getallenlijn') ? 100 : 3));
       addStars(stars); save();
       if (newHigh && rec.plays > 1) beep('win');
@@ -265,17 +265,17 @@ function badges() {
   const gamesPlayed = new Set(Object.keys(S.games).map(k => k.split('-')[0])).size;
   const domainsDone = DOMAINS.filter(d => Object.values(EX).some(e => e.cat.domain === d.id && mastery(e.id) === 2)).length;
   return [
-    ['👣', 'Eerste stap', 'Eén keer geoefend', S.counts.practice >= 1],
-    ['📝', 'Toetsheld', 'Je eerste toets gemaakt', S.counts.tests >= 1],
-    ['💯', 'Foutloos', 'Een toets helemaal goed', S.counts.perfect >= 1],
-    ['⏱', 'Snelle rekenaar', 'Een keer op tijd geoefend', S.counts.timed >= 1],
+    ['👣', 'Eerste stap', 'Eén keer geoefend', aantal('practice') >= 1],
+    ['📝', 'Toetsheld', 'Je eerste toets gemaakt', aantal('tests') >= 1],
+    ['💯', 'Foutloos', 'Een toets helemaal goed', aantal('perfect') >= 1],
+    ['⏱', 'Snelle rekenaar', 'Een keer op tijd geoefend', aantal('timed') >= 1],
     ['✔', 'Kenner', '10 soorten sommen beheerst', mastered >= 10],
     ['🧠', 'Rekenbaas', '50 soorten sommen beheerst', mastered >= 50],
     ['🌈', 'Allrounder', 'In alle 5 domeinen iets beheerst', domainsDone >= 5],
-    ['⭐', 'Sterrenvanger', '100 sterren verdiend', S.stars >= 100],
-    ['🌌', 'Sterrenkoning', '1000 sterren verdiend', S.stars >= 1000],
-    ['🔥', 'Volhouder', '3 dagen op rij gerekend', S.streak >= 3],
-    ['🗓️', 'Weekkampioen', '7 dagen op rij gerekend', S.streak >= 7],
+    ['⭐', 'Sterrenvanger', '100 sterren verdiend', aantalSterren() >= 100],
+    ['🌌', 'Sterrenkoning', '1000 sterren verdiend', aantalSterren() >= 1000],
+    ['🔥', 'Volhouder', '3 dagen op rij gerekend', langsteDagenOpRij() >= 3],
+    ['🗓️', 'Weekkampioen', '7 dagen op rij gerekend', langsteDagenOpRij() >= 7],
     ['🎮', 'Spelletjesfan', 'Alle 5 spelletjes gespeeld', gamesPlayed >= 5],
     ['🚀', 'Rekenraket', `Alles van groep ${g} beheerst`, own.length > 0 && own.every(e => mastery(e.id) === 2)]
   ];
@@ -283,8 +283,8 @@ function badges() {
 function viewVoortgang() {
   const b = badges(), g = S.profile.groep;
   app.innerHTML = `<h1>Mijn voortgang 🏆</h1>
-    <div class="stats"><div class="card stat"><b>⭐ ${S.stars}</b><small>sterren</small></div><div class="card stat"><b>🔥 ${S.streak}</b><small>dagen op rij</small></div>
-    <div class="card stat"><b>✔ ${Object.keys(EX).filter(id => mastery(id) === 2).length}</b><small>beheerst</small></div><div class="card stat"><b>📝 ${S.counts.tests}</b><small>toetsen</small></div></div>
+    <div class="stats"><div class="card stat"><b>⭐ ${aantalSterren()}</b><small>sterren</small></div><div class="card stat"><b>🔥 ${dagenOpRij()}</b><small>dagen op rij</small></div>
+    <div class="card stat"><b>✔ ${Object.keys(EX).filter(id => mastery(id) === 2).length}</b><small>beheerst</small></div><div class="card stat"><b>📝 ${aantal('tests')}</b><small>toetsen</small></div></div>
     <h2>Badges (${b.filter(x => x[3]).length}/${b.length})</h2>
     <div class="badges">${b.map(([e, t, d, ok]) => `<div class="card bdg ${ok ? 'on' : ''}" title="${d}"><span class="emoji">${ok ? e : '🔒'}</span><b>${t}</b><small>${d}</small></div>`).join('')}</div>
     <h2>Onderwerpen groep ${g}</h2>
@@ -322,6 +322,7 @@ function viewProfile(first) {
     const groep = +f.get('groep');
     if (S.profile && S.profile.groep !== groep) S.filter = groep;
     S.profile = { name: String(f.get('name')).trim().slice(0, 20) || 'Rekenaar', groep, avatar: f.get('avatar'), methode: f.get('methode') || '' };
+    S.profielTijd = Date.now();
     if (S.filter == null) S.filter = groep;
     save(); beep('good');
     if (location.hash === '#/' || !location.hash) route(); else location.hash = '#/';

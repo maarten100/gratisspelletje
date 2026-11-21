@@ -9,7 +9,7 @@
    versie die je live zet, dat kan geen kwaad). Dan wordt de cache opnieuw gevuld en de oude opgeruimd.
    BESTANDEN: alle bestanden die de app nodig heeft. "npm test" controleert of deze lijst compleet is. */
 
-const VERSIE = 1;
+const VERSIE = 2;
 const CACHE = 'rekenjerot-v' + VERSIE;
 const BESTANDEN = [
   './',
@@ -24,6 +24,7 @@ const BESTANDEN = [
   './js/app.js',
   './js/config.js',
   './js/kern.js',
+  './js/kind.js',
   './js/koppelingen.js',
   './js/oefeningen.js',
   './js/opslag.js',

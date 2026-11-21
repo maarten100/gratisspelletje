@@ -1,15 +1,36 @@
-/* Voortgang: dagen op rij, sterren, resultaten per oefening en beheersing */
+/* Voortgang: dagen op rij, sterren, tellers, resultaten per oefening en beheersing */
 import { updateTop } from './scherm.js';
-import { S, save } from './opslag.js';
+import { APPARAAT, S, save } from './opslag.js';
+import { TELLERS, langsteReeks, nieuwId, reeks, sterren, teller } from './kind.js';
 
 export const today = (d = new Date()) => d.toLocaleDateString('sv');
+
+/* Vandaag telt als een dag waarop gerekend is */
 export function touchDay() {
   const t = today();
-  if (S.lastDay === t) return;
-  S.streak = S.lastDay === today(new Date(Date.now() - 864e5)) ? S.streak + 1 : 1;
-  S.lastDay = t; save();
+  if (S.dagen.includes(t)) return;
+  S.dagen.push(t); S.dagen.sort(); save();
 }
-export function addStars(n) { if (n > 0) { S.stars += n; save(); updateTop(); } }
+export const dagenOpRij = () => reeks(S.dagen, today());
+export const langsteDagenOpRij = () => langsteReeks(S.dagen);
+
+/* Tellers en sterren: elk apparaat houdt zijn eigen tellers bij (zie kind.js, samenvoegregels) */
+export function tel(naam, n = 1) {
+  const t = S.tellers[APPARAAT] = S.tellers[APPARAAT] || Object.fromEntries(TELLERS.map(x => [x, 0]));
+  t[naam] = (t[naam] || 0) + n;
+  save();
+}
+export const aantal = naam => teller(S, naam);
+export const aantalSterren = () => sterren(S);
+export function addStars(n) { if (n > 0) { tel('stars', n); updateTop(); } }
+
+/* Een gemaakte toets bewaren in de geschiedenis (nieuwste eerst, maximaal 50) */
+export function bewaarToets(toets) {
+  S.history.unshift({ id: nieuwId(), t: Date.now(), ...toets });
+  S.history = S.history.slice(0, 50);
+  save();
+}
+
 export function record(id, ok) {
   const r = S.ex[id] = S.ex[id] || { n: 0, ok: 0, last: [] };
   r.n++; if (ok) r.ok++;
