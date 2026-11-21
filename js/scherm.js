@@ -1,6 +1,7 @@
 /* Hulpmiddelen voor het scherm: elementen zoeken, tekst veilig maken, geluid, confetti en de bovenbalk */
 import { fracHTML, pick } from './kern.js';
 import { S } from './opslag.js';
+import { sterren } from './kind.js';
 
 export const $ = (s, el = document) => el.querySelector(s);
 export const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -39,7 +40,7 @@ export function confetti() {
 
 /* ---------- bovenbalk ---------- */
 export function updateTop() {
-  $('#stars').textContent = S.stars;
+  $('#stars').textContent = sterren(S);
   $('#sound').textContent = S.sound ? '🔊' : '🔇';
   $('#sound').setAttribute('aria-label', S.sound ? 'Geluid uit' : 'Geluid aan');
   $('#me').textContent = S.profile ? S.profile.avatar : '🙂';

@@ -1,12 +1,12 @@
 /* App: routes en schermen. Dit is het startpunt dat index.html laadt. */
 import './oefeningen.js';   // eerst alle oefeningen registreren
-import { NAAM, LOGO, IS_TEST } from './config.js';
+import { NAAM, LOGO, IS_TEST, INSTALL_MELDING_NA_MINUTEN, INSTALL_MELDING_OPNIEUW_NA_DAGEN } from './config.js';
 import { CAT, CATS, DOMAINS, EX, fracHTML, GROEPEN, nl, pick } from './kern.js';
 import { KOPPELINGEN } from './koppelingen.js';
 import { GAMES } from './spellen.js';
 import { $, $$, beep, confetti, esc, fr, updateTop } from './scherm.js';
-import { S, save, wisVoortgang } from './opslag.js';
-import { addStars, gradeStars, inGroep, mastery, starStr, today, touchDay } from './voortgang.js';
+import { S, apparaatInstelling, save, wisVoortgang, zetApparaatInstelling } from './opslag.js';
+import { aantal, aantalSterren, addStars, bewaarToets, dagenOpRij, gradeStars, inGroep, langsteDagenOpRij, mastery, starStr, tel, today, touchDay } from './voortgang.js';
 import { runSession } from './speler.js';
 
 const app = $('#app');
@@ -33,6 +33,7 @@ function route() {
   };
   (views[view] || viewHome)(parts.slice(1), params);
   updateTop();
+  if (view !== 'sessie' && view !== 'spel') misschienInstallMelding();
   window.scrollTo(0, 0);
   app.focus({ preventScroll: true });
 }
@@ -48,19 +49,19 @@ function viewHome() {
     [mine ? `koppeling/${mine.id}?g=${g}` : 'methoden', '🏫', mine ? mine.short || mine.title : 'Mijn rekenmethode', mine ? `Groep ${g} · per blok` : 'Oefen per blok van je methode', 't3'],
     ['methoden?s=toetsen', '📝', 'Toetstraining', 'Cito LIB & IEP', 't4'],
     ['spellen', '🎮', 'Spelletjes', 'Reken je rot!', 't2'],
-    ['voortgang', '🏆', 'Mijn voortgang', `${S.stars} sterren verdiend`, 't5']
+    ['voortgang', '🏆', 'Mijn voortgang', `${aantalSterren()} sterren verdiend`, 't5']
   ];
   const recent = S.history.slice(0, 1)[0];
   app.innerHTML = `
     <section class="hero">
       <div class="avatar">${p.avatar}</div>
       <div><h1>Hoi ${esc(p.name)}!</h1>
-      <p>Groep ${g} · ${S.streak > 1 ? `🔥 ${S.streak} dagen op rij aan het rekenen!` : 'Klaar om te rekenen?'}</p></div>
+      <p>Groep ${g} · ${dagenOpRij() > 1 ? `🔥 ${dagenOpRij()} dagen op rij aan het rekenen!` : 'Klaar om te rekenen?'}</p></div>
     </section>
     <div class="tiles">${tiles.map(([h, e, t, s, c]) => `<a class="tile ${c}" href="#/${h}"><span class="emoji">${e}</span><b>${esc(t)}</b><small>${s}</small></a>`).join('')}</div>
     ${recent ? `<p class="recent">Laatste toets: <b>${esc(recent.title)}</b> · ${recent.score}/${recent.total} · cijfer ${nl(recent.cijfer)}</p>` : ''}
     <div id="install"></div>
-    <p class="foot"><a href="#/profiel">Profiel wijzigen</a> · <a href="#/ouders">Voor ouders &amp; leerkrachten</a></p>`;
+    <p class="foot"><a href="#/profiel">Profiel wijzigen</a> · <a href="#/ouders">Voor ouders, verzorgers en leerkrachten</a></p>`;
   renderInstall();
 }
 
@@ -189,13 +190,13 @@ function viewSessie([mode], params) {
     const key = title;
     let html;
     if (mode === 'oefen') {
-      S.counts.practice++; addStars(r.correct); save();
+      tel('practice'); addStars(r.correct); save();
       if (r.correct === r.total) { beep('win'); confetti(); }
       html = `<div class="emoji huge">${r.correct >= 8 ? '🌟' : r.correct >= 5 ? '👍' : '💪'}</div>
         <h1>${r.correct >= 8 ? 'Super gedaan!' : r.correct >= 5 ? 'Goed bezig!' : 'Blijven oefenen!'}</h1>
         <p class="bigscore">${r.correct}/${r.total} <small>in één keer goed</small></p><p>Je verdiende <b>⭐ ${r.correct}</b> sterren.</p>`;
     } else if (mode === 'tijd') {
-      S.counts.timed++;
+      tel('timed');
       const prev = S.timed[key] || 0, newHigh = r.correct > prev;
       if (newHigh) S.timed[key] = r.correct;
       addStars(Math.ceil(r.correct / 2)); save();
@@ -207,9 +208,8 @@ function viewSessie([mode], params) {
       const score = r.correct, cijfer = Math.max(1, Math.round((1 + 9 * score / r.total) * 10) / 10), norm = Math.round(score / r.total * 10);
       const prev = S.tests[key];
       S.tests[key] = Math.max(prev || 0, norm);
-      S.counts.tests++; if (score === r.total) S.counts.perfect++;
-      S.history.unshift({ title, score, total: r.total, cijfer, date: today(), sec: secs });
-      S.history = S.history.slice(0, 50);
+      tel('tests'); if (score === r.total) tel('perfect');
+      bewaarToets({ title, score, total: r.total, cijfer, date: today(), sec: secs });
       addStars(score); save();
       if (score === r.total) { beep('win'); confetti(); } else if (norm >= 8) beep('win');
       const wrong = r.items.filter(x => !x.ok);
@@ -245,9 +245,10 @@ function viewSpel([id]) {
     groep: S.profile.groep, beep, confetti,
     finish(key, score, { lower }) {
       const rec = S.games[key] = S.games[key] || { plays: 0 };
+      if (lower) rec.lower = true;
       const newHigh = rec.high == null || (lower ? score < rec.high : score > rec.high);
       if (newHigh) rec.high = score;
-      rec.plays++; S.counts.games++;
+      rec.plays++; tel('games');
       const stars = lower ? Math.max(1, 16 - score) : Math.ceil(score / (key.startsWith('getallenlijn') ? 100 : 3));
       addStars(stars); save();
       if (newHigh && rec.plays > 1) beep('win');
@@ -265,17 +266,17 @@ function badges() {
   const gamesPlayed = new Set(Object.keys(S.games).map(k => k.split('-')[0])).size;
   const domainsDone = DOMAINS.filter(d => Object.values(EX).some(e => e.cat.domain === d.id && mastery(e.id) === 2)).length;
   return [
-    ['👣', 'Eerste stap', 'Eén keer geoefend', S.counts.practice >= 1],
-    ['📝', 'Toetsheld', 'Je eerste toets gemaakt', S.counts.tests >= 1],
-    ['💯', 'Foutloos', 'Een toets helemaal goed', S.counts.perfect >= 1],
-    ['⏱', 'Snelle rekenaar', 'Een keer op tijd geoefend', S.counts.timed >= 1],
+    ['👣', 'Eerste stap', 'Eén keer geoefend', aantal('practice') >= 1],
+    ['📝', 'Toetsheld', 'Je eerste toets gemaakt', aantal('tests') >= 1],
+    ['💯', 'Foutloos', 'Een toets helemaal goed', aantal('perfect') >= 1],
+    ['⏱', 'Snelle rekenaar', 'Een keer op tijd geoefend', aantal('timed') >= 1],
     ['✔', 'Kenner', '10 soorten sommen beheerst', mastered >= 10],
     ['🧠', 'Rekenbaas', '50 soorten sommen beheerst', mastered >= 50],
     ['🌈', 'Allrounder', 'In alle 5 domeinen iets beheerst', domainsDone >= 5],
-    ['⭐', 'Sterrenvanger', '100 sterren verdiend', S.stars >= 100],
-    ['🌌', 'Sterrenkoning', '1000 sterren verdiend', S.stars >= 1000],
-    ['🔥', 'Volhouder', '3 dagen op rij gerekend', S.streak >= 3],
-    ['🗓️', 'Weekkampioen', '7 dagen op rij gerekend', S.streak >= 7],
+    ['⭐', 'Sterrenvanger', '100 sterren verdiend', aantalSterren() >= 100],
+    ['🌌', 'Sterrenkoning', '1000 sterren verdiend', aantalSterren() >= 1000],
+    ['🔥', 'Volhouder', '3 dagen op rij gerekend', langsteDagenOpRij() >= 3],
+    ['🗓️', 'Weekkampioen', '7 dagen op rij gerekend', langsteDagenOpRij() >= 7],
     ['🎮', 'Spelletjesfan', 'Alle 5 spelletjes gespeeld', gamesPlayed >= 5],
     ['🚀', 'Rekenraket', `Alles van groep ${g} beheerst`, own.length > 0 && own.every(e => mastery(e.id) === 2)]
   ];
@@ -283,8 +284,8 @@ function badges() {
 function viewVoortgang() {
   const b = badges(), g = S.profile.groep;
   app.innerHTML = `<h1>Mijn voortgang 🏆</h1>
-    <div class="stats"><div class="card stat"><b>⭐ ${S.stars}</b><small>sterren</small></div><div class="card stat"><b>🔥 ${S.streak}</b><small>dagen op rij</small></div>
-    <div class="card stat"><b>✔ ${Object.keys(EX).filter(id => mastery(id) === 2).length}</b><small>beheerst</small></div><div class="card stat"><b>📝 ${S.counts.tests}</b><small>toetsen</small></div></div>
+    <div class="stats"><div class="card stat"><b>⭐ ${aantalSterren()}</b><small>sterren</small></div><div class="card stat"><b>🔥 ${dagenOpRij()}</b><small>dagen op rij</small></div>
+    <div class="card stat"><b>✔ ${Object.keys(EX).filter(id => mastery(id) === 2).length}</b><small>beheerst</small></div><div class="card stat"><b>📝 ${aantal('tests')}</b><small>toetsen</small></div></div>
     <h2>Badges (${b.filter(x => x[3]).length}/${b.length})</h2>
     <div class="badges">${b.map(([e, t, d, ok]) => `<div class="card bdg ${ok ? 'on' : ''}" title="${d}"><span class="emoji">${ok ? e : '🔒'}</span><b>${t}</b><small>${d}</small></div>`).join('')}</div>
     <h2>Onderwerpen groep ${g}</h2>
@@ -322,6 +323,7 @@ function viewProfile(first) {
     const groep = +f.get('groep');
     if (S.profile && S.profile.groep !== groep) S.filter = groep;
     S.profile = { name: String(f.get('name')).trim().slice(0, 20) || 'Rekenaar', groep, avatar: f.get('avatar'), methode: f.get('methode') || '' };
+    S.profielTijd = Date.now();
     if (S.filter == null) S.filter = groep;
     save(); beep('good');
     if (location.hash === '#/' || !location.hash) route(); else location.hash = '#/';
@@ -337,7 +339,7 @@ function viewProfile(first) {
 
 function viewOuders() {
   const n = Object.keys(EX).length;
-  app.innerHTML = `<h1>Voor ouders & leerkrachten</h1>
+  app.innerHTML = `<h1>Voor ouders, verzorgers en leerkrachten</h1>
     <article class="card uitleg"><h2>Wat is ${NAAM}</h2>
     <p>${NAAM} is een gratis oefenapp voor rekenen in groep 1 tot en met 8, met ${n} soorten oefeningen in ${CATS.length} onderwerpen, verdeeld over de domeinen ${DOMAINS.map(d => d.title.toLowerCase()).join(', ')}.</p>
     <ul><li><b>Oefenen</b>: kies een of meer soorten sommen. Na een fout volgt een hulpje.</li>
@@ -359,8 +361,8 @@ window.addEventListener('appinstalled', () => { installEvt = null; renderInstall
 function renderInstall() {
   const box = $('#install');
   if (!box) return;
-  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = isGeinstalleerd();
+  const ios = isIOS();
   if (standalone) { box.innerHTML = ''; return; }
   if (installEvt) {
     box.innerHTML = `<div class="card install"><span class="emoji">📲</span><div><b>Zet ${NAAM} op je tablet of telefoon</b><small>Dan werkt het ook zonder internet.</small></div><button class="btn primary" id="inst">Installeren</button></div>`;
@@ -368,6 +370,45 @@ function renderInstall() {
   } else if (ios) {
     box.innerHTML = `<div class="card install"><span class="emoji">📲</span><div><b>Zet ${NAAM} op je beginscherm</b><small>Tik op <b>Deel</b> ⬆️ en kies <b>Zet op beginscherm</b>.</small></div></div>`;
   } else box.innerHTML = '';
+}
+
+/* Na een tijdje oefenen: een melding "zet de app op je beginscherm".
+   Alleen als installeren hier kan en de app nog niet geïnstalleerd is, nooit midden in een oefening
+   of spelletje, hooguit één keer per bezoek, en na "Later" pas weer na een paar dagen. */
+const appGestart = Date.now();
+let installMeldingGetoond = false;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isGeinstalleerd = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+function misschienInstallMelding() {
+  if (installMeldingGetoond || isGeinstalleerd() || !(installEvt || isIOS())) return;
+  if (Date.now() - appGestart < INSTALL_MELDING_NA_MINUTEN * 60e3) return;
+  const laatst = apparaatInstelling('installGevraagd');
+  if (laatst && Date.now() - laatst < INSTALL_MELDING_OPNIEUW_NA_DAGEN * 864e5) return;
+  installMeldingGetoond = true;
+  zetApparaatInstelling('installGevraagd', Date.now());
+  const vorigeFocus = document.activeElement;
+  const m = document.createElement('div');
+  m.className = 'melding-achter';
+  m.innerHTML = `<div class="card melding" role="dialog" aria-modal="true" aria-labelledby="melding-titel">
+    <img src="iconen/icoon.svg" alt="" width="72" height="72">
+    <h2 id="melding-titel">Zet ${esc(NAAM)} op je beginscherm</h2>
+    ${installEvt
+      ? `<p>Dan staat de app tussen je andere apps en kun je ook rekenen zonder internet.</p>
+         <div class="knoppen"><button class="btn primary big" data-doe="installeren">Installeren</button><button class="btn" data-doe="later">Later</button></div>`
+      : `<p>Dan staat de app tussen je andere apps en kun je ook rekenen zonder internet.</p>
+         <ol class="stappen"><li>Tik op <b>Deel</b> <span aria-hidden="true">⬆️</span> (bovenaan of onderaan het scherm).</li><li>Kies <b>Zet op beginscherm</b>.</li><li>Tik op <b>Voeg toe</b>.</li></ol>
+         <div class="knoppen"><button class="btn primary big" data-doe="later">Oké</button></div>`}
+  </div>`;
+  document.body.appendChild(m);
+  const sluit = () => { m.remove(); document.removeEventListener('keydown', toets); if (vorigeFocus) vorigeFocus.focus?.({ preventScroll: true }); };
+  const toets = e => { if (e.key === 'Escape') sluit(); };
+  document.addEventListener('keydown', toets);
+  m.addEventListener('click', async e => {
+    const doe = e.target.closest('[data-doe]')?.dataset.doe;
+    if (e.target === m || doe === 'later') return sluit();
+    if (doe === 'installeren' && installEvt) { sluit(); installEvt.prompt(); await installEvt.userChoice; installEvt = null; renderInstall(); }
+  });
+  $('.melding .btn', m).focus();
 }
 
 /* naam en logo uit config.js in de bovenbalk en de titel */

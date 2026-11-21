@@ -13,3 +13,7 @@ export const LOGO = '🚀';   // het plaatje vóór de naam in de bovenbalk
 export const PRODUCTIE_DOMEIN = 'rekenjerot.nl';
 export const IS_TEST = typeof location !== 'undefined'
   && location.hostname !== PRODUCTIE_DOMEIN && location.hostname !== 'www.' + PRODUCTIE_DOMEIN;
+
+/* Melding "zet de app op je beginscherm": na hoeveel minuten in de app, en na "Later" pas weer na hoeveel dagen */
+export const INSTALL_MELDING_NA_MINUTEN = 3;
+export const INSTALL_MELDING_OPNIEUW_NA_DAGEN = 7;

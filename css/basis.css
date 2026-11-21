@@ -441,7 +441,8 @@ details.uitleg[open] > summary { margin-bottom: 8px; }
 .strip { width: min(320px, 90%); height: auto; }
 .strip rect { stroke: var(--ink); stroke-width: 2; }
 .strip .on { fill: var(--accent); } .strip .off { fill: #fff; }
-.nlsvg { width: min(340px, 100%); height: auto; }
+/* overflow: visible + ruimte opzij: getallen aan het begin en eind van de lijn steken over de rand van het plaatje */
+.nlsvg { width: min(340px, calc(100% - 56px)); height: auto; overflow: visible; margin: 0 28px; }
 .nlsvg .axis { stroke: var(--ink); stroke-width: 3; }
 .nlsvg .tk { stroke: var(--ink); stroke-width: 2; }
 .nlsvg .lb { font-size: 12px; font-weight: 800; text-anchor: middle; fill: var(--ink); font-family: var(--font); }
@@ -467,3 +468,13 @@ button.coin:active, button.bill:active { transform: translateY(2px); }
   .actionbar #selcount { display: none; }
   .actionbar .btn { padding: 8px 10px; font-size: .95rem; white-space: nowrap; }
 }
+
+/* melding over de hele pagina (bv. "zet op je beginscherm") */
+.melding-achter { position: fixed; inset: 0; z-index: 50; background: rgba(43, 35, 80, .45); display: grid; place-items: center; padding: 16px; }
+.melding { max-width: 420px; width: 100%; text-align: center; animation: melding-in .25s ease-out; }
+@keyframes melding-in { from { transform: scale(.9); opacity: 0; } }
+.melding img { border-radius: 18px; }
+.melding h2 { margin: 10px 0 6px; }
+.melding .stappen { text-align: left; margin: 10px auto; padding-left: 1.4em; max-width: 300px; }
+.melding .stappen li { margin: 6px 0; }
+.melding .knoppen { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
